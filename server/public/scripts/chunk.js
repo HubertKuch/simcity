@@ -33,15 +33,14 @@ const specialTilesTypes = [
     [0, 'energy_fan_sprite_01'],
 ]
 
-const body = document.querySelector('body');
+const map = document.querySelector('.map');
 
 function setTile (row, actualIndex, tilename) {
     if (row.length === actualIndex) {
-        console.log(actualIndex);
-        body.innerHTML += '<br>';
+        map.innerHTML += '<br>';
     }
 
-    body.innerHTML += `<img onclick="console.log('[${row}, ${actualIndex}]')" src='/sprites/${tilename}.png'/>`;
+    map.innerHTML += `<img src='/sprites/${tilename}.png'/>`;
 }
 
 function provideTilemap (tilemap) {
