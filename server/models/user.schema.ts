@@ -1,7 +1,6 @@
 import {Schema, model, Model} from 'mongoose';
 import bcrypt from 'bcrypt';
 import { createHash, randomBytes } from 'crypto';
-import buildingSchema from "./building.model";
 
 const userSchema = new Schema({
     username: {
@@ -48,7 +47,10 @@ const userSchema = new Schema({
         type: Number,
         min: 0
     },
-    buildings: [buildingSchema],
+    building: {
+        type: [],
+        default: [],
+    },
     level: {
         type: Number,
         default: 1,
@@ -59,6 +61,14 @@ const userSchema = new Schema({
         type: String,
         default: 'user',
         enum: ['admin', 'user', 'moderator'],
+    },
+    money: {
+        type: Number,
+        default: 50000,
+    },
+    exp: {
+        type: Number,
+        default: 0,
     },
     isActivated: {
         type: Boolean,
@@ -72,6 +82,7 @@ const userSchema = new Schema({
         type: Boolean,
         default: false,
     },
+    isPrivateAccount: { type: Boolean, default: false, },
     passwordResetToken: String,
     passwordResetExpiresIn: Date,
     passwordChangedAt: Date,
@@ -114,6 +125,6 @@ userSchema.methods.comparePassword = async function (passedPassword: string) {
     return await bcrypt.compare(passedPassword, this.password);
 };
 
-const UserSchemal: Model<any> = model('User', userSchema, 'Users');
+const UserSchema: Model<any> = model('User', userSchema, 'Users');
 
-export default UserSchemal;
+export default UserSchema;

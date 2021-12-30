@@ -4,8 +4,10 @@ import { config } from 'dotenv'
 import helmet from 'helmet';
 import errorController from "./controllers/error.controller";
 import userRouter from "./routes/user.router";
+import buildingRouter from "./routes/building.router";
 import logger from "./utils/logger";
 import rateLimit from 'express-rate-limit';
+import viewRouter from './routes/view.router';
 
 config();
 
@@ -13,6 +15,8 @@ const app = express();
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.set('view engine', 'pug');
+app.use(express.static('public'))
 app.use(logger);
 
 if (process.env.NODE_ENV === 'production') {
@@ -23,7 +27,9 @@ if (process.env.NODE_ENV === 'production') {
     }));
 }
 
+app.use('/', viewRouter);
 app.use('/api/v1/users/', userRouter);
+app.use('/api/v1/buildings/', buildingRouter);
 
 app.use(errorController);
 

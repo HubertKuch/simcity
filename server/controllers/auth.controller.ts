@@ -1,5 +1,5 @@
 import { Response, Request, NextFunction } from 'express';
-import User from "../models/user.schemal";
+import User from "../models/user.schema";
 import catchAsync from "../utils/catchAsync";
 import AppError from "../utils/appError";
 import sendStatus from "../utils/sendStatus";
@@ -184,6 +184,27 @@ const twoFactorAuth = catchAsync(async (req: Request, res: Response, next: NextF
 
     const jwtToken: string = await signToken(res, user._id);
     return sendStatus(res, 'Success', 200, 'ok', { jwtToken });
-})
+});
 
-export default { signup, verifyEmail, login, protectRoute, restrictTo, twoFactorAuth };
+const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
+    if (req.cookies.jwt) {
+        try {
+            // @ts-ignore
+            const tokenData = await promisify(jwt.decode)(req.cookies.jwt, process.env.JWT_SECRET);
+            // @ts-ignore
+            const user = await User.findById(tokenData.id);
+
+            if (!user) {
+                return next();
+            }
+
+            res.locals.user = user;
+            return next();
+        } catch (error) {
+            return next();
+        }
+    }
+    next();
+}
+
+export default { signup, verifyEmail, login, protectRoute, restrictTo, twoFactorAuth, isLoggedIn };
