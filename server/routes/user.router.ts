@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import UserApi from "../api/user.api";
+import UserApi from "../controllers/user.controller";
 import authController from "../controllers/auth.controller";
 import roundController from '../controllers/round.controller';
 
@@ -11,6 +11,7 @@ userRouter
     .patch('/verifyEmail/:id/:token', authController.verifyEmail)
     .patch('/twoAuth/:id/:token', authController.twoFactorAuth)
     .patch('/nextRound', authController.protectRoute, roundController)
+    .get('/cityInfo', authController.protectRoute, UserApi.cityInfo)
 
 userRouter
     .get('/',

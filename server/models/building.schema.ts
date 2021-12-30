@@ -10,6 +10,10 @@ const buildingSchema = new Schema({
         type: Number,
         default: 100,
     },
+    expensePerPerson: {
+        type: Number,
+        default: 40,
+    },
     coinsPerPerson: { type: Number, default: 50 },
     level: {
         type: Number,
@@ -30,6 +34,16 @@ const buildingSchema = new Schema({
     people: {
         type: Number,
         default: 0,
+    },
+    usedEnergy: {
+        type: Number,
+        default: 0,
+        min: 0,
+    },
+    producedEnergy: {
+        type: Number,
+        default: 0,
+        min: 0,
     },
     placeId: { type: Number },
     powerPerDay: {},
