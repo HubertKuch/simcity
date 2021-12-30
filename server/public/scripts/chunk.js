@@ -27,18 +27,21 @@ const tilesTypes = [
     [11, 'grass_water_right_sprite_01'],
     [12, 'grass_water_right_top_sprite_01'],
     [13, 'grass_water_top_sprite_01'],
+];
+
+const specialTilesTypes = [
+    [0, 'energy_fan_sprite_01'],
 ]
 
 const body = document.querySelector('body');
 
 function setTile (row, actualIndex, tilename) {
-    console.log(row.length, actualIndex);
     if (row.length === actualIndex) {
         console.log(actualIndex);
         body.innerHTML += '<br>';
     }
 
-    body.innerHTML += `<span style='height:32px;width:32px;'><img src='/sprites/${tilename}.png'/></span>`;
+    body.innerHTML += `<img onclick="console.log('[${row}, ${actualIndex}]')" src='/sprites/${tilename}.png'/>`;
 }
 
 function provideTilemap (tilemap) {

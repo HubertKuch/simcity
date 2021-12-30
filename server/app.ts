@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { connect } from 'mongoose';
 import { config } from 'dotenv'
 import helmet from 'helmet';
@@ -18,6 +18,15 @@ app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'pug');
 app.use(express.static('public'))
 app.use(logger);
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+    res.setHeader(
+        'Content-Security-Policy',
+        "default-src *; font-src *;"
+      );
+
+    next();
+});
 
 if (process.env.NODE_ENV === 'production') {
     app.use('/api', rateLimit({

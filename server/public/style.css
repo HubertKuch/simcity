@@ -4,9 +4,37 @@ html, body{
   padding: 0;
   margin: 0;
   background: black;
-  color: white;
+  color: gray;
 }
 
 img{
   height: 64px;
+}
+
+/* NAV */
+nav {
+  background: black;
+  width: 100%;
+  height: 50px;
+}
+
+ul{
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+}
+
+li {
+  float: left;
+  height: 100%;
+  text-align: center;
+  font-size: 28px;
+}
+
+li::first-letter{
+  color:white;
 }
