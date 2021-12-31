@@ -1,0 +1,47 @@
+html(lang="en")
+    head
+        meta(charset="UTF-8")
+        meta(http-equiv="X-UA-Compatible", content="IE=edge")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title= title
+        link(rel="stylesheet", href="/style.css")
+    body
+        include ./components/nav.pug
+        .city-info
+            ul.city-info-list
+                li
+                    span.info-key MONEY: 
+                    span.info-value 40.000 
+                li
+                    span.info-key EXP: 
+                    span.info-value 200/3500 
+                li
+                    span.info-key LEVEL: 
+                    span.info-value 5 
+
+                li
+                    span.info-key BUILDINGS:  
+                    span.info-value 4 
+
+                li
+                    span.info-key EXPENSES: 
+                    span.info-value 1000 
+
+                li
+                    span.info-key EARNINGS: 
+                    span.info-value 1200 
+
+                li
+                    span.info-key ENERGY USED: 
+                    span.info-value 48 
+
+                li
+                    span.info-key PRODUCED ENERGY:   
+                    span.info-value 52 
+
+                li
+                    span.info-key PEOPLE: 
+                    span.info-value 300 
+
+        .map
+        script(src="/scripts/chunk.js", defer)

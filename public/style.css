@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@200&display=swap');
+
+html, body{
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  background: black;
+  color: gray;
+  font-family: 'Raleway', sans-serif;
+}
+
+img{
+  height: 64px;
+}
+
+/* NAV */
+nav {
+  background: black;
+  width: 100%;
+  height: 50px;
+}
+
+.nav-menu{
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.nav-menu span {
+  display: block;
+}
+
+.nav-menu li {
+  float: left;
+  height: 100%;
+  text-align: center;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.nav-menu span::first-letter{
+  color:white;
+}
+
+/* MODAL */
+
+.modal-nav{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 100;
+}
+
+.container{
+  width: 60%;
+  height: 70%;
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%);
+  background: rgb(89, 95, 91);
+}
+
+.overlay{
+  height: 100%;
+  width: 100%;
+  background: rgba(255, 255, 255, .3);
+}
+
+/* MAP */
+.map{
+  width: 80%;
+  height: calc(100% - 50px);
+  float: right;
+}
+
+
+/* CITY INFO */
+.city-info{
+  background: black;
+  height: calc(100% - 50px);
+  width: 20%;
+  float: left;
+  color: gray;
+  font-size: 32px;
+}
+
+.city-info::first-letter {
+  color: white;
+}
+
+.city-info-list {
+  list-style: none;
+}
+
+.city-info li {
+  margin-top: 20px;
+}
+
+.info-value {
+  color: rgb(233, 221, 221);
+}
