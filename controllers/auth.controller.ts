@@ -34,7 +34,6 @@ const signup = catchAsync(async (req: Request, res: Response, next: NextFunction
 
     const verificationToken = await user.generateActivationEmailToken();
     const verifyEmailURL = `${req.protocol}://${req.hostname}${req.baseUrl}/verifyEmail/${user._id}/${verificationToken}`;
-    await user.save();
     await sendEmail({
         message: `Verify your email at ${verifyEmailURL}`,
         subject: 'Verify email',
@@ -42,6 +41,8 @@ const signup = catchAsync(async (req: Request, res: Response, next: NextFunction
     });
 
     const token: string = await signToken(res, user._id);
+
+    await user.save();
 
     sendStatus(res, 'success', 201, 'ok', { token });
 });
@@ -72,18 +73,19 @@ const verifyEmail = catchAsync(async (req: Request, res: Response, next: NextFun
 
 const login = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { email, password }: { email: string, password: string } = req.body;
+
     if (!email || !password) {
         return next(new AppError('Please provide email and password.', 400));
     }
 
     const user = await User.findOne({ email }).select('+password');
-
+    
     if (!await user) {
         return next(new AppError('Email or password was incorrect.', 401));
     }
 
-    //  compare hash
-    if (!user.comparePassword(password)) {
+    // compare hash
+    if (!(await user.comparePassword(password))) {
         return next(new AppError('Email or password was incorrect.', 401));
     }
 
@@ -95,7 +97,7 @@ const login = catchAsync(async (req: Request, res: Response, next: NextFunction)
     // check if user account was not deleted
     if (!user.isActivated) {
         return next(new AppError('Your account was deleted', 401));
-    }
+    }    
 
     // TODO THIS ACTION!!!
     if (user.twoAuth) {
@@ -188,7 +190,6 @@ const twoFactorAuth = catchAsync(async (req: Request, res: Response, next: NextF
 
 const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
     const jwtCookie: string|undefined = req.cookies?.token;
-    console.log(req);
     
     if (!jwtCookie) {
         return res.redirect('/login')
