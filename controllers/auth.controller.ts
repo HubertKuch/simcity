@@ -189,7 +189,8 @@ const twoFactorAuth = catchAsync(async (req: Request, res: Response, next: NextF
 });
 
 const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
-    const jwtCookie: string|undefined = req.cookies?.token;
+    const jwtCookie: string|undefined = req.cookies;
+    console.log(req.cookies.token);
     
     if (!jwtCookie) {
         return res.redirect('/login')
