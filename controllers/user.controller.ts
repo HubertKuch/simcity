@@ -15,7 +15,7 @@ const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFun
 });
 
 const cityInfo = catchAsync(async (req: IReqUser, res: Response, next: NextFunction) => {
-    const user = req.user;
+    const user = res.locals.user;
 
     const response = {
         money: user.money,
@@ -49,7 +49,9 @@ const cityInfo = catchAsync(async (req: IReqUser, res: Response, next: NextFunct
 
     });
 
-    return sendStatus(res, 'success', 200, 'ok', { ...response });
+    res.locals.cityInfo = response;
+
+    next();
 })
 
 export default {

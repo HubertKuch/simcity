@@ -4,7 +4,7 @@ import catchAsync from "../utils/catchAsync";
 import AppError from "../utils/appError";
 import sendStatus from "../utils/sendStatus";
 import sendEmail from "../utils/sendEmail";
-import { createHash } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 import jwt from 'jsonwebtoken';
 import signToken from '../utils/signToken';
 import { promisify } from 'util';
@@ -189,30 +189,41 @@ const twoFactorAuth = catchAsync(async (req: Request, res: Response, next: NextF
 });
 
 const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
-    const jwtCookie: string|undefined = req.cookies;
-    console.log(req.cookies.token);
+    const jwtCookie: string|undefined = req.cookies.token;
     
     if (!jwtCookie) {
         return res.redirect('/login')
     }
-
+    
     try {
-        // @ts-ignore
-        const tokenData = await promisify(jwt.decode)(req.cookies.token, process.env.JWT_SECRET);
-        // @ts-ignore
-        const user = await User.findById(tokenData.id);
+        jwt.verify(jwtCookie, process.env.JWT_SECRET!, async (err, decodedData) => {
+            if (err) {                
+                return res.redirect('/login');
+            }
+    
+            const user = await User.findById(decodedData?.id!);
 
-        if (!user) {
-            return next();
-        }
+            if (!user) {
+                return next();
+            }
 
-        res.locals.user = user;
-        return next();
-    } catch (error) {
+            res.locals.user = user;
+            next();
+        })
+    } catch (err) {
         return next();
     }
-
-    next();
 }
 
-export default { signup, verifyEmail, login, protectRoute, restrictTo, twoFactorAuth, isLoggedIn };
+const logout = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    let jwtCookie: string = req.cookies.token;
+    
+    if(!jwtCookie) {
+        return res.status(400).json({ message: 'INVALID_SENT_TOKEN_VIA_COOKIE', status: 'error', statusCode: 400});
+    }   
+    
+    res.clearCookie('token');
+    return res.status(200).json({ message: 'sucesss', status: 'ok', statusCode: 200, data: { token: jwtCookie }});
+})
+
+export default { signup, verifyEmail, login, protectRoute, restrictTo, twoFactorAuth, isLoggedIn, logout };

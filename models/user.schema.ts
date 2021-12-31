@@ -94,11 +94,14 @@ const userSchema = new Schema({
 
 userSchema.pre('save', async function (next: Function) {
     console.log(this.password);
-
     if (!this.isModified('password') || this.isNew) {
-        this.password = await bcrypt.hash(this.password, 12);
         return next();
     }
+
+    if (this.isNew) {
+        this.password = await bcrypt.hash(this.password, 12);
+    }
+
     // this.password = bcrypt.hash(this.password, 12);
     this.passwordConfirm = undefined;
     

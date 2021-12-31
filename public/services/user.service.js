@@ -15,9 +15,8 @@ class UserService extends ApiService {
             }
 
             // send req
-            const res = await axios.post(`${this.URL}/users/login`, { email, password });
-            console.log(res);
-            
+            await axios.post(`${this.URL}/users/login`, { email, password });
+            window.location.replace('/')
         } catch (e) {
             const errContainer = document.querySelector(errField);
 
@@ -27,6 +26,14 @@ class UserService extends ApiService {
             }
 
             errContainer.textContent = `${e.message}`
+        }
+    }
+
+    async logout () {
+        try {
+            await axios.get(`${this.URL}/users/logout`);
+        } catch (e) {
+            console.log(e);
         }
     }
 }

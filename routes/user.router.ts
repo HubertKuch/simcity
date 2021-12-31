@@ -6,12 +6,13 @@ import roundController from '../controllers/round.controller';
 const userRouter: Router  = Router();
     
 userRouter
+    .get('/cityInfo', authController.protectRoute, UserApi.cityInfo)
+    .get('/logout', authController.logout)
     .post('/signup', authController.signup)
     .post('/login', authController.login)
     .patch('/verifyEmail/:id/:token', authController.verifyEmail)
     .patch('/twoAuth/:id/:token', authController.twoFactorAuth)
     .patch('/nextRound', authController.protectRoute, roundController)
-    .get('/cityInfo', authController.protectRoute, UserApi.cityInfo)
 
 userRouter
     .get('/',
