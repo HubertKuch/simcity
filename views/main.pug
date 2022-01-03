@@ -47,12 +47,13 @@ html(lang="en")
 
         .map
         .buildings-list
-            .building-to-buy
+            .building-to-buy(draggable="true")
                 img(id="building-to-buy-image", src="sprites/house_family_house_sprite_01.png")
                 br
                 span Family House - 4500
         script(src="https://unpkg.com/axios/dist/axios.min.js", defer)
-        script(src="/scripts/chunk.js", defer)
+        script(src="/scripts/chunk.js")
+        script(src="/scripts/setBuilding.js") 
         script(src="/services/api.service.js")
         script(src="/services/user.service.js")
         script(src="/auth/logout.js")

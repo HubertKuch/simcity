@@ -15,4 +15,8 @@ const login = catchAsync(async (req: Request, res: Response, next: NextFunction)
     res.render('login')
 });
 
-export default { mainPage, login };
+const signUp = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    res.render('signup')
+})
+
+export default { mainPage, login, signUp };

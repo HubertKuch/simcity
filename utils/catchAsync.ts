@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 
-export default (fn: Function) => {
+export default (callback: Function) => {
     return (req: Request, res: Response, next: NextFunction) => {
-        fn(req, res, next).catch(next);
+        callback(req, res, next).catch(next);
     }
 }

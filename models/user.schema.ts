@@ -42,7 +42,6 @@ const userSchema = new Schema({
             message: 'Password and password confirm must be the same.',
         },
     },
-    photo: String,
     coins: {
         type: Number,
         min: 0
@@ -74,6 +73,7 @@ const userSchema = new Schema({
         type: Boolean,
         default: true,
     },
+    photo: String,
     isEmailActivated: {
         type: Boolean,
         default: false,

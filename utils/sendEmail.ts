@@ -7,7 +7,7 @@ interface IMailOptions {
     html?: string
 }
 
-export default async function sendEmail (options: IMailOptions ) {
+export default async function sendEmail ({ to, subject, message, html }: IMailOptions ) {
     const transporter = nodemailer.createTransport({
         host: 'smtp.ethereal.email',
         port: 587,
@@ -17,7 +17,6 @@ export default async function sendEmail (options: IMailOptions ) {
         }
     });
 
-    const { to, subject, message, html } = options;
     return await transporter.sendMail({
         from: 'test',
         to,

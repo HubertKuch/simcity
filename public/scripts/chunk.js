@@ -40,7 +40,7 @@ function setTile (row, actualIndex, tilename) {
         map.innerHTML += '<br>';
     }
 
-    map.innerHTML += `<img src='/sprites/${tilename}.png'/>`;
+    map.innerHTML += `<img class="chunk marked-chunk" draggable="false" src='/sprites/${tilename}.png'/>`;
 }
 
 function provideTilemap (tilemap) {

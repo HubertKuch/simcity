@@ -8,5 +8,6 @@ const viewRouter: Router = Router();
 viewRouter
     .get('/', authController.isLoggedIn, userController.cityInfo, viewsController.mainPage)
     .get('/login', viewsController.login)
+    .get('/signup', viewsController.signUp)
 
 export default viewRouter;

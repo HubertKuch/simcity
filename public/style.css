@@ -9,11 +9,6 @@ html, body{
   color: gray;
   font-family: 'Raleway', sans-serif;
 }
-
-img{
-  height: 64px;
-}
-
 /* NAV */
 nav {
   background: black;
@@ -77,8 +72,20 @@ nav {
   width: 80%;
   height: calc(80% - 50px);
   float: right;
+  overflow: auto;
+  white-space: nowrap;
 }
 
+.chunk{
+  height: 64px;
+  display:inline-block;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.marked-chunk {
+  border: 1px solid blue;
+}
 
 /* CITY INFO */
 .city-info{
@@ -120,7 +127,7 @@ nav {
 .building-to-buy{
   height: 100%;
   width: 300px;
-  border: 1px solid white;
+  border: 1px solid white; 
 }
 
 #building-to-buy-image {

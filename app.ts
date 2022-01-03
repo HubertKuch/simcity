@@ -9,27 +9,24 @@ import logger from "./utils/logger";
 import rateLimit from 'express-rate-limit';
 import viewRouter from './routes/view.router';
 import cookieParser from 'cookie-parser';
-
-config();
+import headersMiddleware from './middleware/headers';
 
 const app = express();
+
+// CONFIG
+config();
+app.set('view engine', 'pug');
+
+// MIDDLEWARE
+app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser())
-app.use(express.urlencoded({ extended: true }));
-app.set('view engine', 'pug');
 app.use(express.static('public'))
 app.use(logger);
+app.use(headersMiddleware);
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-    res.setHeader(
-        'Content-Security-Policy',
-        "default-src *; font-src *;"
-      );
-
-    next();
-});
-
+// RATE LIMITER
 if (process.env.NODE_ENV === 'production') {
     app.use('/api', rateLimit({
         max: 150,
@@ -38,16 +35,17 @@ if (process.env.NODE_ENV === 'production') {
     }));
 }
 
+// ROUTES
 app.use('/', viewRouter);
 app.use('/api/v1/users/', userRouter);
 app.use('/api/v1/buildings/', buildingRouter);
-
 app.use(errorController);
 
-let db = `${process.env.DB_URI}`
+// MONGO
+let dbConnectionString = `${process.env.DB_URI}`
     .replace('<user>', process.env.DB_USER??'')
     .replace('<password>', process.env.DB_PASS??'');
 
-connect(db, {});
+connect(dbConnectionString, {});
 
 export default app;
