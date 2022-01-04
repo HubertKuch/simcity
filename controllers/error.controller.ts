@@ -3,6 +3,7 @@ import AppError from "../utils/appError";
 
 function sendDevelopmentError(err: any, res: Response){
     console.log(err.stack);
+
     return res.status(err.statusCode).json({
        message: err.message,
        stack: err.stack,
@@ -36,10 +37,12 @@ const handleCastError = (err: Error) => new AppError(`${err.path} is incorrect. 
 const handleDuplicateFieldsError = (err: Error) => new AppError(`Duplicate ${Object.keys(err.keyValue)[0]} field, use another.`, 400);
 
 export default (err: any, req: Request, res: Response, next: NextFunction) => {
-    if (err.name === 'JsonWebTokenError') err = handleJWTError();
-    if (err.name === 'ValidationError') err = handleValidationError();
-    if (err.name === 'CastError') err = handleCastError(err);
     if (err.code === 11000) err = handleDuplicateFieldsError(err);
+    switch (err.name) {
+        case 'JsonWebTokenError': err = handleJWTError(); break;
+        case 'ValidationError': err = handleValidationError(); break;
+        case 'CastError': err = handleCastError(err); break;
+    }
 
     err.statusCode = err.statusCode ?? 500;
     err.name = err.name ?? 'serverError';

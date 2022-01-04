@@ -1,50 +1,17 @@
-import {model, Schema, Model } from 'mongoose';
+import { model, Schema } from 'mongoose';
 
 const buildingSchema = new Schema({
     name: String,
-    cost: {
-        type: Number,
-        default: 100,
-    },
-    coinsPerDay: {
-        type: Number,
-        default: 100,
-    },
-    expensePerPerson: {
-        type: Number,
-        default: 40,
-    },
+    cost: { type: Number, default: 100, },
+    coinsPerDay: { type: Number, default: 100, },
+    expensePerPerson: { type: Number, default: 40, },
     coinsPerPerson: { type: Number, default: 50 },
-    level: {
-        type: Number,
-        min: 1,
-        max: 100,
-        default: 1,
-    },
-    requiredLevel: {
-        type: Number,
-        default: 1,
-        min: 1,
-        max: 100,
-    },
-    forPeople: {
-        type: Number,
-        default: 5,
-    },
-    people: {
-        type: Number,
-        default: 0,
-    },
-    usedEnergy: {
-        type: Number,
-        default: 0,
-        min: 0,
-    },
-    producedEnergy: {
-        type: Number,
-        default: 0,
-        min: 0,
-    },
+    level: { type: Number, min: 1, max: 100, default: 1, },
+    requiredLevel: { type: Number, default: 1, min: 1, max: 100,},
+    forPeople: { type: Number, default: 5, },
+    people: { type: Number, default: 0, },
+    usedEnergy: { type: Number, default: 0, min: 0, },
+    producedEnergy: { type: Number, default: 0, min: 0,},
     placeId: { type: Number },
     powerPerDay: {},
     expPerDay: {},
@@ -57,6 +24,6 @@ buildingSchema.pre('save', (next) => {
     next();
 });
 
-const buildingModel: Model<any> = model('Building', buildingSchema);
+const buildingModel = model('Building', buildingSchema);
 
 export default buildingModel;

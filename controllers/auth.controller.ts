@@ -4,12 +4,13 @@ import catchAsync from "../utils/catchAsync";
 import AppError from "../utils/appError";
 import sendStatus from "../utils/sendStatus";
 import sendEmail from "../utils/sendEmail";
-import { createHash, randomBytes } from 'crypto';
 import jwt from 'jsonwebtoken';
 import signToken from '../utils/signToken';
+import IReqUser from '../utils/IReqUser';
+import { createHash } from 'crypto';
 import { promisify } from 'util';
 
-interface ISingUpData {
+interface ISignUpData {
     username: string,
     password: string,
     passwordConfirm: string,
@@ -18,22 +19,17 @@ interface ISingUpData {
 }
 
 const signup = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const { username, passwordConfirm, password, photo, email }: ISingUpData = req.body;
+    const { username, passwordConfirm, password, photo, email }: ISignUpData = req.body;
 
     if (!username || !email || !password || !passwordConfirm) {
         return next(new AppError('Please provide all of your data and try again.',400));
     }
 
-    const user = new User({
-        email,
-        username,
-        password,
-        passwordConfirm,
-        photo,
-    });
+    const user = new User({ email, username, password, passwordConfirm, photo, });
 
     const verificationToken = await user.generateActivationEmailToken();
     const verifyEmailURL = `${req.protocol}://${req.hostname}${req.baseUrl}/verifyEmail/${user._id}/${verificationToken}`;
+
     await sendEmail({
         message: `Verify your email at ${verifyEmailURL}`,
         subject: 'Verify email',
@@ -50,18 +46,16 @@ const signup = catchAsync(async (req: Request, res: Response, next: NextFunction
 const verifyEmail = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { id, token } = req.params;
 
-    if (!id || !token) {
-        return sendStatus(res, 'Something went wrong. Open link again and check.', 400, 'fail');
-    }
+    if (!id || !token) return sendStatus(res, 'Something went wrong. Open link again and check.', 400, 'fail');
 
     const user = await User.findById(id);
-    const hashedToken = createHash('sha256').update(token).digest('hex');
+    const hashedVerificationToken = createHash('sha256').update(token).digest('hex');
 
     if (!user) {
         return next(new AppError('Invalid user id.', 401));
     }
 
-    if (hashedToken === user.activateEmailToken && (user.activateEmailTokenExpiresIn > Date.now()-5)){
+    if (hashedVerificationToken === user.activateEmailToken && (user.activateEmailTokenExpiresIn > Date.now()-5)){
         user.isEmailActivated = true;
         user.activateEmailToken = undefined;
         user.activateEmailTokenExpiresIn = undefined;
@@ -99,9 +93,9 @@ const login = catchAsync(async (req: Request, res: Response, next: NextFunction)
         return next(new AppError('Your account was deleted', 401));
     }    
 
-    // TODO THIS ACTION!!!
     if (user.twoAuth) {
         let loginToken: number = await user.generateTwoAuthToken();
+
         await user.save({ validateBeforeSave: false });
         await sendEmail({
             message: `Your activation code is here ${loginToken}`,
@@ -117,15 +111,15 @@ const login = catchAsync(async (req: Request, res: Response, next: NextFunction)
         );
     }
 
-    const token = await signToken(res, user._id);
+    const token: string = await signToken(res, user._id);
 
     sendStatus(res, 'success', 200, 'ok', { token });
 });
 
 const restrictTo = function (restrictedRoles: string) {
     const roles: Array<string> = restrictedRoles.split(' ');
-    return (req: Request, res: Response, next: NextFunction) => {
-        // @ts-ignore
+
+    return (req: IReqUser, res: Response, next: NextFunction) => {
         if (!roles.includes(req.user.role)) {
             next(new AppError('You don\'t permission to perform this action.', 403));
         }
@@ -133,7 +127,7 @@ const restrictTo = function (restrictedRoles: string) {
     }
 };
 
-const protectRoute = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const protectRoute = catchAsync(async (req: IReqUser, res: Response, next: NextFunction) => {
     let token: string = '';
 
     if (req.headers.authorization && `${req.headers.authorization}`.startsWith('Bearer')) {
@@ -145,10 +139,9 @@ const protectRoute = catchAsync(async (req: Request, res: Response, next: NextFu
     }
 
     // @ts-ignore
-    const decodedData = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+    const decodedData: { id: string } = await promisify(jwt.verify)(token, process.env.JWT_SECRET!);
 
     // Check if user with this id still exists
-    // @ts-ignore
     const user = await User.findById(decodedData.id);
 
     if (!user) {
@@ -157,7 +150,7 @@ const protectRoute = catchAsync(async (req: Request, res: Response, next: NextFu
 
     // check if user was changed password after token was created
     // @ts-ignore
-    if (user.afterPasswordChanged(token.iat)) {
+    if (user.afterPasswordChanged(decodedData.iat)) {
         return next(new AppError('Password was changed after login. Please login again.', 401));
     }
 
@@ -169,7 +162,7 @@ const protectRoute = catchAsync(async (req: Request, res: Response, next: NextFu
 const twoFactorAuth = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { id, token }= req.params;
 
-    if (!id || !token || `${token}`.length < 6) {
+    if (!id || !token || token.length < 6) {
         return sendStatus(res, 'Provide activation code from your email.', 400, 'fail');
     }
 
@@ -185,11 +178,12 @@ const twoFactorAuth = catchAsync(async (req: Request, res: Response, next: NextF
     await user.save({ validateBeforeSave: false });
 
     const jwtToken: string = await signToken(res, user._id);
+
     return sendStatus(res, 'Success', 200, 'ok', { jwtToken });
 });
 
 const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
-    const jwtCookie: string|undefined = req.cookies.token;
+    const jwtCookie: string = req.cookies.token;
     
     if (!jwtCookie) {
         return res.redirect('/login')
@@ -209,7 +203,7 @@ const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
 
             res.locals.user = user;
             next();
-        })
+        });
     } catch (err) {
         return next();
     }

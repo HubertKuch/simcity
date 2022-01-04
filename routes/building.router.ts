@@ -15,7 +15,7 @@ buildingRouter
         '/:placeId',
         userController.protectRoute,
         buildingController.destroyBuilding
-    )
+    );
     
 
 // For admins

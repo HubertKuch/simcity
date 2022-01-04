@@ -2,8 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import catchAsync from "../utils/catchAsync";
 
 const mainPage = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    console.log(res.locals.cityInfo);
-    
     res.render('main', { 
         title: 'My city',
         user: res.locals.user,
@@ -11,12 +9,7 @@ const mainPage = catchAsync(async (req: Request, res: Response, next: NextFuncti
     });
 });
 
-const login = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    res.render('login')
-});
-
-const signUp = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    res.render('signup')
-})
+const login = catchAsync(async (req: Request, res: Response, next: NextFunction) => res.render('login'));
+const signUp = catchAsync(async (req: Request, res: Response, next: NextFunction) => res.render('signup'));
 
 export default { mainPage, login, signUp };
