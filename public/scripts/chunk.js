@@ -35,28 +35,41 @@ const specialTilesTypes = [
 
 const map = document.querySelector('.map');
 
-function setTile (row, actualIndex, tilename) {
+function setTile (row, actualIndex, actualRow, tilename) {
     if (row.length === actualIndex) {
         map.innerHTML += '<br>';
     }
 
-    map.innerHTML += `<img class="chunk marked-chunk" draggable="false" src='/sprites/${tilename}.png'/>`;
+    map.innerHTML += `
+        <span class="chunk-container">
+             <img 
+                id="${actualRow}-${actualIndex}" 
+                class="chunk marked-chunk" 
+                draggable="false" 
+                src='/sprites/${tilename}.png'
+            />
+        </span>
+    `;
 }
 
 function provideTilemap (tilemap) {
     let elementIndex = 0;
+    let rowIndex = 0;
     for (const row of tilemap) {
         for (const element of row) {
             for (const tileTypeRow of tilesTypes) {
                 if (tileTypeRow[0] === element) {
-                    setTile(row, elementIndex, tileTypeRow[1]);
+                    setTile(row, elementIndex, rowIndex, tileTypeRow[1]);
                 }
             }
 
             (elementIndex === row.length) ? elementIndex = 0:null;
             elementIndex+=1;
         }
+
+        rowIndex+=1;
     }
 }
 
 provideTilemap(tilemap);
+console.log(document.querySelector('span'))

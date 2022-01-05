@@ -63,7 +63,6 @@ const userSchema = new Schema({
 });
 
 userSchema.pre('save', async function (next: Function) {
-    console.log(this.password);
     if (!this.isModified('password') || this.isNew) {
         return next();
     }
@@ -72,9 +71,7 @@ userSchema.pre('save', async function (next: Function) {
         this.password = await bcrypt.hash(this.password, 12);
     }
 
-    // this.password = bcrypt.hash(this.password, 12);
     this.passwordConfirm = undefined;
-    
     this.passwordChangedAt = Date.now() - 500;
     next();
 });

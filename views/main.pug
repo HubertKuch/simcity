@@ -14,7 +14,7 @@ html(lang="en")
                     span.info-value #{user.money} 
                 li
                     span.info-key EXP: 
-                    span.info-value #{user.exp}/3500 
+                    span.info-value #{user.exp}/3000 
                 li
                     span.info-key LEVEL: 
                     span.info-value #{user.level}
@@ -46,14 +46,10 @@ html(lang="en")
                     span.logout-button LOGOUT
 
         .map
-        .buildings-list
-            .building-to-buy(draggable="true")
-                img(id="building-to-buy-image", src="sprites/house_family_house_sprite_01.png")
-                br
-                span Family House - 4500
         script(src="https://unpkg.com/axios/dist/axios.min.js", defer)
         script(src="/scripts/chunk.js")
         script(src="/scripts/setBuilding.js") 
         script(src="/services/api.service.js")
         script(src="/services/user.service.js")
         script(src="/auth/logout.js")
+        script(src="/scripts/round.js")

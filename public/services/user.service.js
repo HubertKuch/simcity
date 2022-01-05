@@ -36,4 +36,38 @@ class UserService extends ApiService {
             console.log(e);
         }
     }
+
+    async nextRound () {
+        try {
+            let cookies = document.cookie.split(' ');
+            let token = '';
+
+            cookies.forEach(cookie => {
+                if(cookie.includes('token')) {
+
+                    token = cookie
+                }
+            })
+
+            token = token.replace(';', '');
+            token = token.substring(6)
+
+            const res = await axios({ 
+                method: 'PATCH', 
+                url: `${this.URL}/users/nextRound`, 
+                headers: { Authorization: `Bearer ${token}` }
+            });
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    async cityInfo () {
+        try {
+            const res = await axios.get(`localhost:3000`);
+            console.log(res);  
+        } catch (error) {
+            console.log(error);
+        } 
+    }
 }
