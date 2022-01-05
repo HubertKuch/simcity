@@ -1,44 +1,82 @@
 import { Request, Response, NextFunction } from "express";
 import catchAsync from "../utils/catchAsync";
-import AppError from "../utils/appError";
-import User from "../models/user.schema";
+import IReqUser from "../utils/IReqUser";
 
-interface IReqUser extends Request {
-    user: any,
-}
+/**
+ * TAXES
+ * LOW INCOMES
+ * NEIGHBORS
+ */
 
 const roundController = catchAsync(async (req: IReqUser, res: Response, next: NextFunction) => {
-    // const lowLevelExpEndpoint: number = 500; // level 1 - 10
-    // const highLevelExpEndpoint: number = 1000; // level 10 - 15
-    // const advanceLevelExpEndpoint: number = 2000; // level 15 - 20
-    // // 20 is max level
+    let user = req.user;
+    const userCopy = Object.assign({}, user);
 
-    // let user = req.user;
-    // const userBuildings: Array<object> = req.user.building;
-    // const userExp: number = req.user.exp;
-    // const userLevel: number = req.user.level;
-    // let needExp: number = userExp;
+    interface IExpEndpoint {
+        min: number,
+        max: number,
+        expEndPoint: number,
+    }
 
-    // const incresseLevel = (level: number, needExp: number, haveExp: number): void => {
-    //     if (needExp <= haveExp) {
-    //         level+=1;
-    //         haveExp -= needExp;
-    //     }
-    // };
-    // // check user exp
-    // if (userLevel <= 10) {
-    //     incresseLevel(user.level, (userLevel * lowLevelExpEndpoint), user.exp);
-    // } else if (userLevel >= 10 && userLevel <= 15) {
-    //     incresseLevel(user.level, (userLevel * highLevelExpEndpoint), user.exp);
-    // } else if (userLevel >= 15 && userLevel <= 20) {
-    //     incresseLevel(user.level, (userLevel * advanceLevelExpEndpoint), user.exp);
-    // } else if (userLevel === 20) {
-    //     return;
-    // }
-    // user.exp -= 500;
-    // console.log(user);
+    const lowLevelExpEndpoint: IExpEndpoint = { min: 1, max: 10, expEndPoint: 500 }; 
+    const mediumLevelExpEndpoint: IExpEndpoint = { min: 10, max: 15, expEndPoint: 1000 }; 
+    const highLevelExpEndpoint: IExpEndpoint = { min: 15, max: 20, expEndPoint: 2000 }; 
+    const expEndopints: Array<IExpEndpoint> = [lowLevelExpEndpoint, mediumLevelExpEndpoint, highLevelExpEndpoint];
+
+    let userLevel: number = user.level;
+    let userBuildings: Array<any> = user.building;
+    let needExpToNextLevel: number = 0;
+
+    // 1) experience and level
+    // incresse user experience
+    userBuildings.forEach(building => {
+        user.exp += building.expPerDay;
+    });
+
+    // incresse user level
+    expEndopints.forEach(endpoint => {
+        if (userLevel >= endpoint.min && userLevel < endpoint.max && userLevel < 20) {
+            needExpToNextLevel = endpoint.expEndPoint * userLevel;
+        }
+    });
+
+    if (user.exp >= needExpToNextLevel) {
+        user.exp -= needExpToNextLevel;
+        user.level += 1;
+    }
     
-    // await user.save();
+    // 2) Energy, expenses, earnings, population
+    userBuildings.forEach((buildingEl, index) => {
+        const building = Object.assign({}, buildingEl);
+        // energy
+        if (building.people > 0) {
+            building.usedEnergy = building.people * 1.5;
+        }
+
+        // expenses
+        user.money -= building.expensePerPerson * building.people;
+
+        // earnings
+        user.money += building.coinsPerPerson * building.people;
+
+        // population
+        if (Math.random() > 0.5) {
+            if(building.people < building.forPeople) {
+                const newPeople = Math.floor(Math.random() * 2);
+                if ((newPeople + building.people) < building.forPeople) {
+                    building.people += newPeople;
+                }
+            }
+        }
+        
+        req.user.building[index] = building;        
+    })
+
+    if (user !== userCopy) {
+        console.log('save');        
+        await user.save({ validateBeforeSave: false });
+    }
+    return res.status(200)
 });
 
 export default roundController;
