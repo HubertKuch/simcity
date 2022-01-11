@@ -1,83 +1,185 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import catchAsync from "../utils/catchAsync";
-import IReqUser from "../utils/IReqUser";
+import UserReq from "../utils/UserReq";
 
-/**
- * TAXES
- * LOW INCOMES
- * NEIGHBORS
- */
+interface ExpEndpoint {
+    min: number,
+    max: number,
+    expEndPoint: number,
+}
 
-const roundController = catchAsync(async (req: IReqUser, res: Response, next: NextFunction) => {
-    let user = req.user;
-    const userCopy = Object.assign({}, user);
+abstract class RoundController {
+    constructor(req: UserReq){};
 
-    interface IExpEndpoint {
-        min: number,
-        max: number,
-        expEndPoint: number,
+    public abstract moneySystem(): void;
+    public abstract levelSystem(): void;
+    public abstract energySystem(): void;
+    public abstract populationSystem(): void;
+
+    protected abstract isHaveExpToNextLevel(requiredExp: number): boolean;
+    protected abstract requiredExpToNextLevel(): number;
+    protected abstract setExp(): void;
+    protected abstract setLevel(): void;
+
+    protected abstract getUsedEnergy(building: any): number;
+    protected abstract setUsedEnergy(value: number): void;
+ 
+    protected abstract getEarnings(): number;
+    protected abstract getExpenses(): number;
+    protected abstract addMoney(money: number): void;
+    protected abstract subtractMoney(money: number): void;
+ 
+    protected abstract setBuildingsPopulation(): void;
+ 
+    protected abstract saveUser(): Promise<void>;
+}
+
+class RoundControllerImpl extends RoundController {
+    private lowLevelExpEndpoint: ExpEndpoint;
+    private mediumLevelExpEndpoint: ExpEndpoint
+    private highLevelExpEndpoint: ExpEndpoint;
+    private expEndopints: Array<ExpEndpoint>;
+    private req: UserReq;
+    private user: any;
+
+    public constructor(req: UserReq) {
+        super(req);
+        this.req = req;
+        this.user = this.req.user;
+        this.lowLevelExpEndpoint = { min: 1, max: 10, expEndPoint: 500 }; 
+        this.mediumLevelExpEndpoint = { min: 10, max: 15, expEndPoint: 1000 }; 
+        this.highLevelExpEndpoint = { min: 15, max: 20, expEndPoint: 2000 }; 
+        this.expEndopints = [this.lowLevelExpEndpoint, this.mediumLevelExpEndpoint, this.highLevelExpEndpoint];
     }
 
-    const lowLevelExpEndpoint: IExpEndpoint = { min: 1, max: 10, expEndPoint: 500 }; 
-    const mediumLevelExpEndpoint: IExpEndpoint = { min: 10, max: 15, expEndPoint: 1000 }; 
-    const highLevelExpEndpoint: IExpEndpoint = { min: 15, max: 20, expEndPoint: 2000 }; 
-    const expEndopints: Array<IExpEndpoint> = [lowLevelExpEndpoint, mediumLevelExpEndpoint, highLevelExpEndpoint];
-
-    let userLevel: number = user.level;
-    let userBuildings: Array<any> = user.building;
-    let needExpToNextLevel: number = 0;
-
-    // 1) experience and level
-    // incresse user experience
-    userBuildings.forEach(building => {
-        user.exp += building.expPerDay;
-    });
-
-    // incresse user level
-    expEndopints.forEach(endpoint => {
-        if (userLevel >= endpoint.min && userLevel < endpoint.max && userLevel < 20) {
-            needExpToNextLevel = endpoint.expEndPoint * userLevel;
-        }
-    });
-
-    if (user.exp >= needExpToNextLevel) {
-        user.exp -= needExpToNextLevel;
-        user.level += 1;
-    }
-    
-    // 2) Energy, expenses, earnings, population
-    userBuildings.forEach((buildingEl, index) => {
-        const building = Object.assign({}, buildingEl);
-        // energy
-        if (building.people > 0) {
-            building.usedEnergy = building.people * 1.5;
-        }
-
-        // expenses
-        user.money -= building.expensePerPerson * building.people;
-
-        // earnings
-        user.money += building.coinsPerPerson * building.people;
-
-        // population
-        if (Math.random() > 0.5) {
-            if(building.people < building.forPeople) {
-                const newPeople = Math.floor(Math.random() * 2);
-                if ((newPeople + building.people) < building.forPeople) {
-                    building.people += newPeople;
-                }
-            }
-        }
+    public moneySystem(): void {
+        const earnings: number = this.getEarnings();
+        const expenses: number = this.getExpenses();
+        console.log(expenses, earnings);
         
-        req.user.building[index] = building;        
-    })
-
-    if (user !== userCopy) {
-        console.log('save');        
-        await user.save({ validateBeforeSave: false });
+        this.addMoney(earnings);
+        this.subtractMoney(expenses);
     }
+
+    public levelSystem(): void {
+        const needExp: number = this.requiredExpToNextLevel();
+
+        this.setExp();
+
+        if (this.isHaveExpToNextLevel(needExp)) {
+            this.setLevel();
+        }
+    }
+
+    public energySystem(): void {
+        return;
+    }
+
+    public populationSystem(): void {
+        this.setBuildingsPopulation();
+    }
+
+    protected requiredExpToNextLevel(): number {
+        const userLevel: number = this.user.level;
+        let requiredExp: number = 0;
+        this.expEndopints.forEach(expEndpoint => {
+            if (userLevel >= expEndpoint.min && userLevel <= expEndpoint.max) {
+                requiredExp = userLevel * expEndpoint.expEndPoint;
+            }
+        })
     
-    return res.status(200)
+        return requiredExp;
+    };
+
+    protected isHaveExpToNextLevel(requiredExp: number): boolean {
+        if (this.user.exp >= requiredExp) 
+            return true;
+        return false;
+    };
+    
+    protected setExp(): void {
+        this.user.building.forEach((building: any) => {
+            this.user.exp += building.expPerDay;
+        })
+    }
+
+    protected setLevel(): void {
+        this.user.level += 1;
+    };
+    
+
+    protected getUsedEnergy(building: any): number {
+        return building.peole * 1.5;
+    };
+
+    protected setUsedEnergy(value: number): void {
+        this.user.building.forEach((building: any) => {
+            building.usedEnergy = value;
+        });
+    }
+
+
+    protected getEarnings(): number {
+        let earnings: number = 0;
+
+        this.user.building.forEach((building: any) => {
+            earnings += building.coinsPerPerson * building.people;
+        })
+
+        return earnings;
+    };
+
+    protected getExpenses(): number {
+        let expenses: number = 0;
+
+        this.user.building.forEach((building: any) => {
+            expenses += building.expensePerPerson * building.people;
+        })
+
+        return expenses;
+    };
+
+    protected addMoney(money: number): void {
+        this.user.money += money;
+    }
+
+    protected subtractMoney(money: number): void {
+        this.user.money -= money;
+    }
+
+
+    protected setBuildingsPopulation(): void {
+        this.user.building.forEach((building: any) => {
+            if (building === {})
+                return;
+
+            if (building.people === building.forPeople) 
+                return;
+            
+            const newPeople: number = Math.floor(Math.random() * 3);
+
+            const isMoveIn: boolean = Math.random() > .5;
+            if (isMoveIn && (building.people + newPeople) > building.forPeople)
+                building.people += (building.forPeople - building.people)
+        });
+    }
+
+    public async saveUser(): Promise<void> {
+        console.log("SAVE");
+        
+        await this.user.save({ validateBeforeSave: false });
+    }
+}
+
+const nextRoundController = catchAsync(async (req: UserReq, res: Response, next: NextFunction): Promise<void> => {
+    const roundController: RoundControllerImpl = new RoundControllerImpl(req)
+
+    roundController.levelSystem();
+    roundController.moneySystem();
+    roundController.energySystem();
+    roundController.populationSystem();
+
+    await roundController.saveUser();
 });
 
-export default roundController;
+export default nextRoundController;
