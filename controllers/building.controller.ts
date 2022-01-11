@@ -3,10 +3,10 @@ import AppError from "../utils/appError";
 import sendStatus from "../utils/sendStatus";
 import catchAsync from "../utils/catchAsync";
 import Building from "../models/building.schema";
-import IReqUser from "../utils/IReqUser";
+import UserReq from "../utils/UserReq";
 
 /* [ ADMIN ] */
-const addBuilding = catchAsync(async (req: IReqUser, res: Response, next: NextFunction) => {
+const addBuilding = catchAsync(async (req: UserReq, res: Response, next: NextFunction) => {
    const { name, cost, costPerDay, coinsPerPerson, level, requiredLevel, forPeople, people, }: {
        name: string,
        cost: number,
@@ -24,7 +24,7 @@ const addBuilding = catchAsync(async (req: IReqUser, res: Response, next: NextFu
 });
 
 /* [ USER ] */
-const buildBuilding = catchAsync(async (req: IReqUser, res: Response, next: NextFunction) => {
+const buildBuilding = catchAsync(async (req: UserReq, res: Response, next: NextFunction) => {
     // 1) Get building id from req
     const { buildingId, placeId } = req.params;
     const building = await Building.findById(buildingId);
@@ -68,7 +68,7 @@ const buildBuilding = catchAsync(async (req: IReqUser, res: Response, next: Next
     return sendStatus(res, 'success', 200, 'ok', { building })
 });
 
-const destroyBuilding = catchAsync(async (req: IReqUser, res: Response, next: NextFunction) => {
+const destroyBuilding = catchAsync(async (req: UserReq, res: Response, next: NextFunction) => {
     const { placeId } = req.params;
     
     // 1) Get building by place id
