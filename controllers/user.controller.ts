@@ -3,10 +3,7 @@ import catchAsync from "../utils/catchAsync";
 import User from "../models/user.schema";
 import AppError from "../utils/appError";
 import sendStatus from "../utils/sendStatus";
-
-interface IReqUser extends Request {
-    user: any
-}
+import UserReq from '../utils/UserReq';
 
 const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const users = await User.find({});
@@ -14,7 +11,7 @@ const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFun
     sendStatus(res, 'success', 200, 'ok', { users });
 });
 
-const cityInfo = catchAsync(async (req: IReqUser, res: Response, next: NextFunction) => {
+const cityInfo = catchAsync(async (req: UserReq, res: Response, next: NextFunction) => {
     const user = res.locals.user;
 
     const response = {

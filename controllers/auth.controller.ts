@@ -6,7 +6,7 @@ import sendStatus from "../utils/sendStatus";
 import sendEmail from "../utils/sendEmail";
 import jwt from 'jsonwebtoken';
 import signToken from '../utils/signToken';
-import IReqUser from '../utils/IReqUser';
+import UserReq from '../utils/UserReq';
 import { createHash } from 'crypto';
 import { promisify } from 'util';
 
@@ -27,7 +27,7 @@ const makeVerificationEmailURL = (activationToken: string, userId: string, req: 
     return `${req.protocol}://${req.hostname}${req.baseUrl}/verifyEmail/${userId}/${activationToken}`;
 }
 
-const makeHashedVerificationToken = (token: string): string => createHash('sha256').update(token).digest('hex');
+const makeHashedVerificationToken = (verToken: string): string => createHash('sha256').update(verToken).digest('hex');
 
 const validateVerifyEmail = async (
     hashedVerificationToken: string, 
@@ -160,7 +160,7 @@ const restrictTo = function (restrictedRoles: string) {
     }
 };
 
-const protectRoute = catchAsync(async (req: IReqUser, res: Response, next: NextFunction) => {
+const protectRoute = catchAsync(async (req: UserReq, res: Response, next: NextFunction) => {
     let token: string = '';
 
     if (req.headers.authorization && `${req.headers.authorization}`.startsWith('Bearer')) {
