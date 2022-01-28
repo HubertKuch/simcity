@@ -5,7 +5,7 @@ import buildingController from "../controllers/building.controller";
 const buildingRouter: Router = Router();
 
 // For all users
-buildingRouter
+/*buildingRouter
     .patch(
         '/:buildingId/:placeId',
         userController.protectRoute,
@@ -17,7 +17,7 @@ buildingRouter
         buildingController.destroyBuilding
     );
     
-
+*/
 // For admins
 buildingRouter
     .post(

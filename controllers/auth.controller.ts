@@ -1,5 +1,5 @@
 import { Response, Request, NextFunction } from 'express';
-import User from "../models/user.schema";
+import UserModel from "../models/user.schema";
 import catchAsync from "../utils/catchAsync";
 import AppError from "../utils/appError";
 import sendStatus from "../utils/sendStatus";
@@ -9,6 +9,7 @@ import signToken from '../utils/signToken';
 import UserReq from '../utils/UserReq';
 import { createHash } from 'crypto';
 import { promisify } from 'util';
+import User from "../models/User";
 
 interface SignUpData {
     username: string,
@@ -50,62 +51,21 @@ const validateLoginData = ({ email, password }: { email: string, password: strin
     }
 }
 
-const userLoginActions = async (user: any, password: string, next: NextFunction) => {
-    if (!await user) {
-        return next(new AppError('Email or password was incorrect.', 401));
-    }
-
-    // compare hash
-    if (!(await user.comparePassword(password))) {
-        return next(new AppError('Email or password was incorrect.', 401));
-    }
-
-    // check if email is active
-    if (!user.isEmailActivated) {
-        return next(new AppError('Your email was not activated', 401));
-    }
-
-    // check if user account was not deleted
-    if (!user.isActivated) {
-        return next(new AppError('Your account was deleted', 401));
-    }    
-}
-
-const userTwoFactorAuthAction = async (user: any, res: Response) => {
-    if (user.twoAuth) {
-        let loginToken: number = await user.generateTwoAuthToken();
-
-        await user.save({ validateBeforeSave: false });
-        await sendEmail({
-            message: `Your activation code is here ${loginToken}`,
-            subject: 'Activation code',
-            to: 'kuchhhubert@gmail.com'
-        });
-
-        return sendStatus(res,
-            'On your account was activated two factor authentication.' +
-            'You must provide six numbers sent to your email.',
-            200,
-            'ok'
-        );
-    }
-}
-
 const checkRestrictedRoles = (roles: Array<string>, userRole: string, next: NextFunction) => {
     if (!roles.includes(userRole)) {
         next(new AppError('You don\'t permission to perform this action.', 403));
     }
 }
 
-// NEXT ABSTRACT LEVEL
+
 const signup = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { username, passwordConfirm, password, photo, email }: SignUpData = req.body;
 
     isValidSignUpData({ username, password, passwordConfirm, photo, email }, next);
 
-    const user = new User({ email, username, password, passwordConfirm, photo, });
+    const user: User = new UserModel({ email, username, password, passwordConfirm, photo, });
 
-    const verifyEmailURL = makeVerificationEmailURL(await user.generateTwoAuthToken(), user._id, req);
+    const verifyEmailURL = makeVerificationEmailURL(user.generateTwoAuthToken(), user._id, req);
 
     await sendEmail({
         message: `Verify your email at ${verifyEmailURL}`,
@@ -125,7 +85,7 @@ const verifyEmail = catchAsync(async (req: Request, res: Response, next: NextFun
 
     if (!id || !token) return sendStatus(res, 'Something went wrong. Open link again and check.', 400, 'fail');
 
-    const user = await User.findById(id);
+    const user = await UserModel.findById(id);
     const hashedVerificationToken = makeHashedVerificationToken(token);
 
     if (!user) {
@@ -140,12 +100,46 @@ const login = catchAsync(async (req: Request, res: Response, next: NextFunction)
 
     validateLoginData({ email, password }, next);
 
-    const user = await User.findOne({ email }).select('+password');
-    
-    await userLoginActions(user, password, next);
-    await userTwoFactorAuthAction(user, res);
+    const user: User|null = await UserModel.findOne({ email }).select('+password');
 
-    const token: string = await signToken(res, user._id);
+    if (!await user) {
+        return next(new AppError('Email or password was incorrect.', 401));
+    }
+
+    // compare hash
+    if (!(await user?.comparePassword(password))) {
+        return next(new AppError('Email or password was incorrect.', 401));
+    }
+
+    // check if email is active
+    if (!user?.isEmailActivated) {
+        return next(new AppError('Your email was not activated', 401));
+    }
+
+    // check if user account was not deleted
+    if (!user.isActivated) {
+        return next(new AppError('Your account was deleted', 401));
+    }
+
+    if (user.twoAuth) {
+        let loginToken: string = await user.generateTwoAuthToken();
+
+        await user.save({ validateBeforeSave: false });
+        await sendEmail({
+            message: `Your activation code is here ${loginToken}`,
+            subject: 'Activation code',
+            to: 'kuchhhubert@gmail.com'
+        });
+
+        return sendStatus(res,
+            'On your account was activated two factor authentication.' +
+            'You must provide six numbers sent to your email.',
+            200,
+            'ok'
+        );
+    }
+
+    const token: string = await signToken(res, user?._id ?? '');
 
     sendStatus(res, 'success', 200, 'ok', { token });
 });
@@ -175,10 +169,10 @@ const protectRoute = catchAsync(async (req: UserReq, res: Response, next: NextFu
     const decodedData: { id: string } = await promisify(jwt.verify)(token, process.env.JWT_SECRET!);
 
     // Check if user with this id still exists
-    const user = await User.findById(decodedData.id);
+    const user = await UserModel.findById(decodedData.id);
 
     if (!user) {
-        return next(new AppError('User with this id does not exists. Log in again.', 401));
+        return next(new AppError('UserModel with this id does not exists. Log in again.', 401));
     }
 
     // check if user was changed password after token was created
@@ -199,9 +193,13 @@ const twoFactorAuth = catchAsync(async (req: Request, res: Response, next: NextF
         return sendStatus(res, 'Provide activation code from your email.', 400, 'fail');
     }
 
-    const user = await User.findById(id);
+    const user: User|null = await UserModel.findById(id);
 
-    if (user.twoAuthLoginToken !== token && user.twoAuthLoginExpiresIn < Date.now() - 500) {
+    if (!user) {
+        return new AppError('Please log in', 401);
+    }
+
+    if (user.twoAuthLoginToken !== token && (user?.twoAuthLoginExpiresIn ?? 0) < Date.now() - 500) {
         return sendStatus(res, 'Your activation code was wrong or has expired.', 401, 'fail');
     }
 
@@ -228,7 +226,7 @@ const isLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
                 return res.redirect('/login');
             }
     
-            const user = await User.findById(decodedData?.id!);
+            const user = await UserModel.findById(decodedData?.id!);
 
             if (!user) {
                 return next();

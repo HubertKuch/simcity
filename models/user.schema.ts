@@ -1,8 +1,9 @@
 import { Schema, model } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { createHash, randomBytes } from 'crypto';
+import User from "./User";
 
-const userSchema = new Schema({
+const userSchema = new Schema<User>({
     username: {
         type: String,
         minlength: [4, 'Username must have four or more characters.'],
@@ -17,7 +18,6 @@ const userSchema = new Schema({
             },
             message: 'E-mail is incorrect.',
         },
-        unique: [true, 'Email must be unique.'],
     },
     password: {
         type: String,
@@ -35,14 +35,13 @@ const userSchema = new Schema({
         type: String,
         required: [true, 'Please confirm your password.'],
         validate: {
-            validator: function (passwordConfirm: string) {
+            validator: function (passwordConfirm: string): any {
                 // @ts-ignore
                 return passwordConfirm === this.password;
             },
             message: 'Password and password confirm must be the same.',
         },
     },
-    coins: { type: Number, min: 0 ,},
     building: { type: [], default: [], },
     level: { type: Number, default: 1, min: 1, max: 100, },
     role: { type: String, default: 'user', enum: ['admin', 'user', 'moderator'], },
@@ -52,7 +51,7 @@ const userSchema = new Schema({
     photo: String,
     isEmailActivated: { type: Boolean, default: false, },
     twoAuth: { type: Boolean, default: false, },
-    isPrivateAccount: { type: Boolean, default: false, },
+    isprotectedAccount: { type: Boolean, default: false, },
     passwordResetToken: String,
     passwordResetExpiresIn: Date,
     passwordChangedAt: Date,
@@ -63,15 +62,16 @@ const userSchema = new Schema({
 });
 
 userSchema.pre('save', async function (next: Function) {
-    if (!this.isModified('password') || this.isNew) {
-        return next();
-    }
+    this.passwordConfirm = undefined;
 
     if (this.isNew) {
         this.password = await bcrypt.hash(this.password, 12);
     }
 
-    this.passwordConfirm = undefined;
+    if (!this.isModified('password') || this.isNew) {
+        return next();
+    }
+
     this.passwordChangedAt = Date.now() - 500;
     next();
 });
@@ -101,6 +101,6 @@ userSchema.methods.comparePassword = async function (passedPassword: string) {
     return await bcrypt.compare(passedPassword, this.password);
 };
 
-const UserSchema = model('User', userSchema, 'Users');
+const UserSchema = model<User>('User', userSchema, 'Users');
 
 export default UserSchema;
