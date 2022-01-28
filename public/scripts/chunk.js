@@ -35,18 +35,18 @@ const specialTilesTypes = [
 
 const map = document.querySelector('.map');
 
-function setTile (row, actualIndex, actualRow, tilename) {
+function setTile (row, typeId, placeId, actualIndex, actualRow, tilename) {
     if (row.length === actualIndex) {
         map.innerHTML += '<br>';
     }
 
     map.innerHTML += `
-        <span class="chunk-container">
+        <span id="place-${placeId}" data-typeId="${typeId}" class="chunk-container">
              <img 
-                id="${actualRow}-${actualIndex}" 
-                class="chunk marked-chunk" 
+                class="chunk" 
                 draggable="false" 
                 src='/sprites/${tilename}.png'
+                alt=""
             />
         </span>
     `;
@@ -54,17 +54,19 @@ function setTile (row, actualIndex, actualRow, tilename) {
 
 function provideTilemap (tilemap) {
     let elementIndex = 0;
+    let placeId = 0;
     let rowIndex = 0;
     for (const row of tilemap) {
         for (const element of row) {
             for (const tileTypeRow of tilesTypes) {
                 if (tileTypeRow[0] === element) {
-                    setTile(row, elementIndex, rowIndex, tileTypeRow[1]);
+                    setTile(row, tileTypeRow[0], placeId, elementIndex, rowIndex, tileTypeRow[1]);
                 }
             }
 
             (elementIndex === row.length) ? elementIndex = 0:null;
             elementIndex+=1;
+            placeId+=1;
         }
 
         rowIndex+=1;
@@ -72,4 +74,3 @@ function provideTilemap (tilemap) {
 }
 
 provideTilemap(tilemap);
-console.log(document.querySelector('span'))

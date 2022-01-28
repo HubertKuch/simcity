@@ -2,6 +2,7 @@ import { model, Schema } from 'mongoose';
 
 const buildingSchema = new Schema({
     name: String,
+    img: { type: String, default: '' },
     cost: { type: Number, default: 100, },
     coinsPerDay: { type: Number, default: 100, },
     expPerDay: { type: Number, default: 100 },

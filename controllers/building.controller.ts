@@ -1,13 +1,13 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import AppError from "../utils/appError";
-import sendStatus from "../utils/sendStatus";
 import catchAsync from "../utils/catchAsync";
 import Building from "../models/building.schema";
 import UserReq from "../utils/UserReq";
+import User from "../models/User";
 
 /* [ ADMIN ] */
 const addBuilding = catchAsync(async (req: UserReq, res: Response, next: NextFunction) => {
-   const { name, cost, costPerDay, coinsPerPerson, level, requiredLevel, forPeople, people, }: {
+   const { name, cost, costPerDay, coinsPerPerson, level, requiredLevel, forPeople, people, img }: {
        name: string,
        cost: number,
        costPerDay: number,
@@ -16,57 +16,72 @@ const addBuilding = catchAsync(async (req: UserReq, res: Response, next: NextFun
        requiredLevel: number,
        forPeople: number,
        people: number,
+       img: string,
    } = req.body;
 
-   const building = new Building({ name, cost, costPerDay, coinsPerPerson, level, requiredLevel, forPeople, people, });
+   const building = new Building({ name, cost, costPerDay, coinsPerPerson, level, requiredLevel, forPeople, people, img });
+
     await building.save();
    res.status(200).json({ message: 'success', status: 'ok', statusCode: 200, data: { building }});
 });
 
 /* [ USER ] */
-const buildBuilding = catchAsync(async (req: UserReq, res: Response, next: NextFunction) => {
-    // 1) Get building id from req
-    const { buildingId, placeId } = req.params;
-    const building = await Building.findById(buildingId);
+export class BuildingController{
+    private user: User;
 
-    if (!building) { 
-        return next(new AppError('Dont be building with this id', 400));
+    constructor(user: User) {
+        this.user = user;
     }
 
-    // 2) Check is user have enough money
-    const userMoney: number = (req.user.money) * 1;
-    const userLevel: number = (req.user.level) * 1;
-
-    if (userMoney < building.cost) {
-        return next(new AppError('You don\'t have enough money', 400));
+    public isHaveEnoughMoney(cost: number): boolean {
+        return this.user.money >= cost;
     }
 
-    // 3) Check is user have minimum required level
-    if (userLevel < building.requiredLevel) {
-        return next(new AppError('Your level is to low.', 400));
+    public isHaveRequiredLevel(needLevel: number): boolean {
+        return this.user.level >= needLevel;
     }
 
-    // 4) Check is on this place was another building
-    let checkPlace = { val: false };
-    await req.user.building.forEach((building: any) => {
-        if (parseInt(building.placeId) === parseInt(placeId)) {
-            checkPlace.val = true;
+    public async buildBuilding(id: string, placeId: number) {
+        // 1) Get building by id
+        const building = await Building.findById(id);
+
+        // 2) Check is user have enough money
+        const isHaveMoney: boolean= this.isHaveEnoughMoney(building.cost);
+        const isHaveRequiredLevel: boolean = this.isHaveRequiredLevel(building.requiredLevel);
+
+        if (!isHaveMoney) {
+            return;
         }
-    });
 
-    if(checkPlace.val) {
-        return next(new AppError('You have building on this place!', 400));
+        // 3) Check is user have minimum required level
+        if (!isHaveRequiredLevel) {
+            return;
+        }
+
+        // 4) Check is on this place was another building
+        let isBusy: boolean = false;
+        await this.user.building.forEach((building: any) => {
+            if (building.placeId == `${placeId}`) {
+                isBusy = true;
+            }
+        });
+
+        if(isBusy) {
+            return;
+        }
+
+        // 5) Save building to user document and decrease user money
+        building.placeId = placeId;
+        let preparedBuilding = JSON.parse(JSON.stringify(building));
+        delete preparedBuilding._id;
+        delete preparedBuilding.__v;
+
+        this.user.building.push(preparedBuilding);
+        this.user.money -= preparedBuilding.cost;
+
+        await this.user.save({ validateBeforeSave: false });
     }
-
-    // 5) Save building to user document and decrese user money
-    building.placeId = placeId;
-    req.user.building.push(building);
-    req.user.money -= building.cost;
-    await req.user.save({ validateBeforeSave: false });
-
-    // 6) Send status
-    return sendStatus(res, 'success', 200, 'ok', { building })
-});
+}
 
 const destroyBuilding = catchAsync(async (req: UserReq, res: Response, next: NextFunction) => {
     const { placeId } = req.params;
@@ -96,4 +111,4 @@ const destroyBuilding = catchAsync(async (req: UserReq, res: Response, next: Nex
     await req.user.save({ validateBeforeSave: false });
 });
 
-export default { buildBuilding, addBuilding, destroyBuilding };
+export default { BuildingController, addBuilding };
