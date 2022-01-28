@@ -1,5 +1,6 @@
 import { Response, Request, NextFunction } from 'express';
 import AppError from "../utils/appError";
+import {Error} from "mongoose";
 
 function sendDevelopmentError(err: any, res: Response){
     console.log(err.stack);
@@ -30,7 +31,7 @@ function sendProductionError(err: any, res: Response) {
 }
 
 const handleJWTError = () => new AppError('Something went wrong with your token. Try again.', 401);
-const handleValidationError = () => new AppError('ds', 400);
+const handleValidationError = (err: Error) => new AppError(err.message, 400);
 // @ts-ignore
 const handleCastError = (err: Error) => new AppError(`${err.path} is incorrect. Try again.`, 400);
 // @ts-ignore
@@ -40,7 +41,7 @@ export default (err: any, req: Request, res: Response, next: NextFunction) => {
     if (err.code === 11000) err = handleDuplicateFieldsError(err);
     switch (err.name) {
         case 'JsonWebTokenError': err = handleJWTError(); break;
-        case 'ValidationError': err = handleValidationError(); break;
+        case 'ValidationError': err = handleValidationError(err); break;
         case 'CastError': err = handleCastError(err); break;
     }
 
