@@ -1,3 +1,5 @@
 node_modules
 .VSCodeCounter
 .idea
+.idea/jsLibraryMappings.xml
+.idea/simcity.iml
