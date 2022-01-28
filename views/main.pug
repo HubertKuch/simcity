@@ -3,53 +3,62 @@ html(lang="en")
         meta(charset="UTF-8")
         meta(http-equiv="X-UA-Compatible", content="IE=edge")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
-        title= title
+        title #{title}
         link(rel="stylesheet", href="/style.css")
     body
         include ./components/nav.pug
-        .city-info
-            ul.city-info-list
-                li
-                    span.info-key MONEY: 
-                    span.info-value #{user.money} 
-                li
-                    span.info-key EXP: 
-                    span.info-value #{user.exp}/3000 
-                li
-                    span.info-key LEVEL: 
-                    span.info-value #{user.level}
+        .my-city
+            .city-info
+                ul.city-info-list
+                    li
+                        span.info-key MONEY:
+                        span.info-value#money
+                    li
+                        span.info-key EXP:
+                        span.info-value#exp
+                    li
+                        span.info-key LEVEL:
+                        span.info-value#level
 
-                li
-                    span.info-key BUILDINGS:  
-                    span.info-value #{user.building.length}
+                    li
+                        span.info-key BUILDINGS:
+                        span.info-value#building
 
-                li
-                    span.info-key EXPENSES: 
-                    span.info-value #{cityInfo.expenses}   
+                    li
+                        span.info-key EXPENSES:
+                        span.info-value#expenses
 
-                li
-                    span.info-key EARNINGS: 
-                    span.info-value #{cityInfo.earnings}   
+                    li
+                        span.info-key EARNINGS:
+                        span.info-value#earnings
 
-                li
-                    span.info-key ENERGY USED: 
-                    span.info-value #{cityInfo.energyUsed}  
+                    li
+                        span.info-key ENERGY USED:
+                        span.info-value#usedEnergy
 
-                li
-                    span.info-key PRODUCED ENERGY:   
-                    span.info-value #{cityInfo.producedEnergy} 
+                    li
+                        span.info-key PRODUCED ENERGY:
+                        span.info-value#producedEnergy
 
-                li
-                    span.info-key PEOPLE: 
-                    span.info-value #{cityInfo.people} 
-                li 
-                    span.logout-button LOGOUT
+                    li
+                        span.info-key PEOPLE:
+                        span.info-value#people
+                    li
+                        span.logout-button LOGOUT
 
-        .map
+            .map
+            include ./components/chunkInfo.pug
+        .quests(style="display: none")
+        .friends(style="display: none")
+        .my-account(style="display: none")
+        .help(style="display: none")
+
+        script(src="/socket.io/socket.io.js")
         script(src="https://unpkg.com/axios/dist/axios.min.js", defer)
         script(src="/scripts/chunk.js")
-        script(src="/scripts/setBuilding.js") 
+        script(src="/scripts/setAsMarked.js")
         script(src="/services/api.service.js")
         script(src="/services/user.service.js")
+        script(src="/socket.js")
+        script(src="/scripts/nav.js")
         script(src="/auth/logout.js")
-        script(src="/scripts/round.js")

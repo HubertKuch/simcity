@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@200&display=swap');
 
-html, body{
+html,
+body {
   width: 100%;
   height: 100%;
   padding: 0;
@@ -9,6 +10,7 @@ html, body{
   color: gray;
   font-family: 'Raleway', sans-serif;
 }
+
 /* NAV */
 nav {
   background: black;
@@ -16,7 +18,7 @@ nav {
   height: 50px;
 }
 
-.nav-menu{
+.nav-menu {
   padding: 0;
   margin: 0;
   list-style: none;
@@ -38,20 +40,19 @@ nav {
   cursor: pointer;
 }
 
-.nav-menu span::first-letter{
-  color:white;
+.nav-menu span::first-letter {
+  color: white;
 }
 
 /* MODAL */
-
-.modal-nav{
+.modal-nav {
   width: 100%;
   height: 100%;
   position: absolute;
   z-index: 100;
 }
 
-.container{
+.container {
   width: 60%;
   height: 70%;
   position: absolute;
@@ -61,14 +62,14 @@ nav {
   background: rgb(89, 95, 91);
 }
 
-.overlay{
+.overlay {
   height: 100%;
   width: 100%;
-  background: rgba(255, 255, 255, .3);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* MAP */
-.map{
+.map {
   width: 80%;
   height: calc(80% - 50px);
   float: right;
@@ -76,25 +77,26 @@ nav {
   white-space: nowrap;
 }
 
-.chunk{
-  height: 64px;
-  display:inline-block;
+.chunk {
+  height: 48px;
+  display: inline-block;
   -webkit-user-drag: none;
   user-select: none;
 }
 
-.chunk-container{
-  height: 64px;
-  width: 64px;
+.chunk-container {
+  height: 48px;
+  width: 48px;
   display: inline-block;
 }
 
 .marked-chunk {
-  border: 1px solid blue;
+  border: 1px solid white;
+  outline: 1px solid black;
 }
 
 /* CITY INFO */
-.city-info{
+.city-info {
   background: black;
   height: calc(100% - 50px);
   width: 20%;
@@ -119,9 +121,17 @@ nav {
   color: rgb(233, 221, 221);
 }
 
+.chunk-info {
+  background: black;
+  width: 80%;
+  height: 20%;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
 /* BUILDINGS LIST */
 .buildings-list {
-  background: black;
   height: 20%;
   width: 100%;
   position: absolute;
@@ -130,11 +140,57 @@ nav {
   left: 0;
 }
 
-.building-to-buy{
+.building-to-buy {
   height: 100%;
   width: 300px;
+  cursor: pointer;
 }
 
 #building-to-buy-image {
   height: 128px;
+}
+
+.new-building {
+  width: 200px;
+  height: calc(100% - 20px);
+  float: left;
+}
+
+/* QUESTS */
+.quests {
+  height: calc(100% - 50px);
+  width: 100%;
+}
+
+.quest-list {
+  width: 20%;
+  height: 100%;
+  float: left;
+  color: white;
+  font-size: 24px;
+}
+
+.quest-list ul {
+  list-style: none;
+}
+
+.quest-list li {
+  margin: 20px 0 0 ;
+
+}
+
+.quest-description {
+  width: 80%;
+  height: 100%;
+  float: left;
+  color: white;
+}
+
+.quest-description .name {
+  font-size: 24px;
+  color: antiquewhite;
+}
+
+.marked-quest {
+  color: #33bd33;
 }
