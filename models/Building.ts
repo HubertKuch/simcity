@@ -1,4 +1,7 @@
 export default interface Building {
+    readonly _id?: string;
+    readonly __v?: string;
+
     name: string;
     cost: number;
     coinsPerDay: number;
