@@ -1,7 +1,7 @@
 import { Response, NextFunction } from "express";
 import AppError from "../utils/appError";
 import catchAsync from "../utils/catchAsync";
-import Building from "../models/building.schema";
+import Building from "../models/BuildingModel";
 import UserReq from "../utils/UserReq";
 import User from "../models/User";
 
@@ -41,7 +41,11 @@ export class BuildingController{
         return this.user.level >= needLevel;
     }
 
-    public async buildBuilding(id: string, placeId: number) {
+    public async buildBuilding(id: string, placeId: number): Promise<void> {
+        if (!id || !placeId) {
+            return;
+        }
+
         // 1) Get building by id
         const building = await Building.findById(id);
 

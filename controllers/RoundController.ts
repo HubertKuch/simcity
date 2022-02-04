@@ -1,7 +1,9 @@
 import RoundService from "../services/RoundService";
+import User from "../models/User";
+import Info from "../models/Info";
 
 class RoundController extends RoundService{
-    constructor(user: any) {
+    constructor(user: User) {
         super(user);
     }
 
@@ -10,20 +12,21 @@ class RoundController extends RoundService{
         this.energySystem();
         this.levelSystem();
         this.populationSystem();
+        this.questSystem();
 
         await this.saveUser();
     }
 
-    public makeInfoObject(): any {
+    public makeInfoObject(): Info {
         return {
             money: this.getMoney(),
             level: this.user.level,
             exp: this.getExp(),
             earnings: this.getEarnings(),
             expenses: this.getExpenses(),
-            producedEnergy: 2,
-            usedEnergy: 2,
-            buildings: this.user.building.length,
+            producedEnergy: this.getProducedEnergy(),
+            usedEnergy: this.getUsedEnergy(),
+            buildings: this.countBuildings(),
             people: this.countPeople(),
         };
     }

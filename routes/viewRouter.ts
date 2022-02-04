@@ -1,6 +1,6 @@
 import { Router } from "express";
-import viewsController from "../controllers/views.controller";
-import authController from "../controllers/auth.controller";
+import viewsController from "../controllers/viewsController";
+import authController from "../controllers/authController";
 
 const viewRouter: Router = Router();
 

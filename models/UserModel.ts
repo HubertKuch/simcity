@@ -2,6 +2,7 @@ import { Schema, model } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { createHash, randomBytes } from 'crypto';
 import User from "./User";
+import QuestModel from "./QuestModel";
 
 const userSchema = new Schema<User>({
     username: {
@@ -43,6 +44,7 @@ const userSchema = new Schema<User>({
         },
     },
     building: { type: [], default: [], },
+    quests: { type: [], default: [] },
     level: { type: Number, default: 1, min: 1, max: 100, },
     role: { type: String, default: 'user', enum: ['admin', 'user', 'moderator'], },
     money: { type: Number, default: 50000, },
@@ -65,6 +67,7 @@ userSchema.pre('save', async function (next: Function) {
     this.passwordConfirm = undefined;
 
     if (this.isNew) {
+        this.quests = await QuestModel.find({}).select('-_id -__V');
         this.password = await bcrypt.hash(this.password, 12);
     }
 
