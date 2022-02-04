@@ -1,13 +1,15 @@
-import Task from "./Task";
+import { Document } from "mongoose";
 
-export interface Quest {
-    _id?: string;
-    __v?: string;
+export default interface Quest extends Document {
+    readonly _id?: string;
+    readonly __v?: string;
 
+    id: string;
     name: string;
-    award: number;
+    moneyAward: number;
+    expAward: number;
     description: string;
 
     isComplete: boolean;
-    requirement: Task[];
+    requirement: string;
 }

@@ -1,5 +1,7 @@
 import Building from "../models/Building";
 import User from "../models/User";
+import Quest from "../models/Quest";
+import Task from "../models/Task";
 
 interface ExpEndpoint {
   min: number;
@@ -11,7 +13,7 @@ class RoundService {
   private readonly lowLevelExpEndpoint: ExpEndpoint;
   private readonly mediumLevelExpEndpoint: ExpEndpoint;
   private readonly highLevelExpEndpoint: ExpEndpoint;
-  private expEndpoints: Array<ExpEndpoint>;
+  private readonly expEndpoints: Array<ExpEndpoint>;
   protected user: User;
 
   public constructor(user: User) {
@@ -24,6 +26,57 @@ class RoundService {
       this.mediumLevelExpEndpoint,
       this.highLevelExpEndpoint,
     ];
+  }
+
+  // QUESTS
+  public getCompletedQuest(): Array<Quest> {
+    let completed: Array<Quest> = [];
+    const allQuests: Array<Quest> = this.user.quests;
+
+    for (const quest of allQuests) {
+      if (!quest.requirement) {
+        continue;
+      }
+
+      const task: Task = JSON.parse(quest.requirement);
+
+      const isLevelProp: boolean = task.hasOwnProperty('level');
+      const isBuildingProp: boolean = task.hasOwnProperty('building');
+      const isMoneyProp: boolean = task.hasOwnProperty('money');
+
+      if (isBuildingProp) {
+        const nestedTask: any = task.building;
+
+        if (nestedTask.hasOwnProperty('have')) {
+           if (this.user.building.length >= nestedTask.have) {
+             completed.push(quest);
+           }
+        }
+      } else if (isMoneyProp){
+        const nestedTask: any = task.money;
+
+        if (nestedTask.hasOwnProperty('have')) {
+          if (this.user.money >= nestedTask.have) {
+            completed.push(quest);
+          }
+        }
+      } else if (isLevelProp) {}
+    }
+
+    return completed;
+  }
+
+  public questSystem(): void {
+    const completedQuests: Array<Quest> = this.getCompletedQuest();
+    const quests: Array<Quest> = this.user.quests;
+
+    for (const quest of quests) {
+      for (const completedQuest of completedQuests) {
+        if (completedQuest.name === quest.name) {
+          quest.isComplete = true;
+        }
+      }
+    }
   }
 
   // SYSTEMS
@@ -42,6 +95,7 @@ class RoundService {
 
     if (this.isHaveExpToNextLevel(needExp)) {
       this.setLevel();
+      this.user.exp -= needExp;
     }
   }
 
@@ -92,14 +146,24 @@ class RoundService {
     this.user.level += 1;
   }
 
-  protected static getUsedEnergy(building: Building): number {
-    return building.people * 1.5;
+  protected getUsedEnergy(): number {
+    const usedEnergy: number = 0;
+
+    for (const building of this.user.building) {
+      building.usedEnergy += usedEnergy;
+    }
+
+    return usedEnergy;
   }
 
-  protected setUsedEnergy(value: number): void {
-    this.user.building.forEach((building: Building) => {
-      building.usedEnergy = value;
-    });
+  protected getProducedEnergy(): number {
+    const producedEnergy: number = 0;
+
+    for (const building of this.user.building) {
+      building.producedEnergy += producedEnergy;
+    }
+
+    return producedEnergy;
   }
 
   protected getEarnings(): number {
@@ -152,6 +216,7 @@ class RoundService {
 
   public async saveUser(): Promise<void> {
     this.user.markModified('building');
+    this.user.markModified('quests');
     await this.user.save({ validateBeforeSave: false });
   }
 }
