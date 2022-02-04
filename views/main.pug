@@ -1,3 +1,4 @@
+doctype
 html(lang="en")
     head
         meta(charset="UTF-8")
@@ -5,60 +6,30 @@ html(lang="en")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         title #{title}
         link(rel="stylesheet", href="/style.css")
+        link(rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css", integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm", crossorigin="anonymous")
+
     body
         include ./components/nav.pug
-        .my-city
-            .city-info
-                ul.city-info-list
-                    li
-                        span.info-key MONEY:
-                        span.info-value#money
-                    li
-                        span.info-key EXP:
-                        span.info-value#exp
-                    li
-                        span.info-key LEVEL:
-                        span.info-value#level
 
-                    li
-                        span.info-key BUILDINGS:
-                        span.info-value#building
+        include ./sections/myCity.pug
+        include ./sections/quests.pug
+        include ./sections/friends.pug
+        include ./sections/myAccount.pug
+        include ./sections/settings.pug
+        include ./sections/help.pug
 
-                    li
-                        span.info-key EXPENSES:
-                        span.info-value#expenses
+        include ./components/notificationStack.pug
 
-                    li
-                        span.info-key EARNINGS:
-                        span.info-value#earnings
-
-                    li
-                        span.info-key ENERGY USED:
-                        span.info-value#usedEnergy
-
-                    li
-                        span.info-key PRODUCED ENERGY:
-                        span.info-value#producedEnergy
-
-                    li
-                        span.info-key PEOPLE:
-                        span.info-value#people
-                    li
-                        span.logout-button LOGOUT
-
-            .map
-            include ./components/chunkInfo.pug
-        .quests(style="display: none")
-        .friends(style="display: none")
-        .my-account(style="display: none")
-        .help(style="display: none")
-
+        script(src="/utils.js")
+        script(src="/drawTilemap.js")
+        script(src="/customElements.js")
         script(src="/socket.io/socket.io.js")
         script(src="https://unpkg.com/axios/dist/axios.min.js", defer)
-        script(src="/scripts/chunk.js")
-        script(src="/scripts/setAsMarked.js")
+        script(src="/setAsMarked.js")
         script(src="/services/api.service.js")
         script(src="/services/user.service.js")
         script(src="/socket.js")
-        script(src="/scripts/nav.js")
+        script(src="/nav.js")
+        script(src="/movement.js")
+        script(src="/hide.js")
         script(src="/auth/logout.js")
