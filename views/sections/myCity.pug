@@ -1,0 +1,49 @@
+.my-city
+    .city-info
+        ul.city-info-list
+            li
+                span.info-key
+                    i(class="info-icon fas fa-money-bill-alt" style="color: #57C478;")
+                span.info-value#money
+            li
+                span.info-key
+                    i(class="fas fa-star" style="color: yellow;")
+                span.info-value#exp
+            li
+                span.info-key LEVEL:
+                span.info-value#level
+
+            li
+                span.info-key
+                    i(class="fas fa-building" style="color: #AB4C47;")
+                span.info-value#buildings
+
+            li
+                span.info-key EXPENSES:
+                span.info-value#expenses
+
+            li
+                span.info-key EARNINGS:
+                span.info-value#earnings
+
+            li
+                span.info-key ENERGY USED:
+                span.info-value#usedEnergy
+
+            li
+                span.info-key PRODUCED ENERGY:
+                span.info-value#producedEnergy
+
+            li
+                span.info-key
+                    i(class="fas fa-male" style="color: #FFC9A9")
+                span.info-value#people
+            li
+                span.logout-button LOGOUT
+            div.open-city-info
+
+    canvas#map-ctx
+    canvas#building-ctx
+    canvas#marked-ctx
+    img(class="static-boat" style="z-index: 10000; position: absolute" src="/sprites/boat_sprite_01.gif")
+    include ../components/chunkInfo.pug
