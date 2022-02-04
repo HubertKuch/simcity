@@ -4,13 +4,15 @@ import { Server, Socket } from 'socket.io';
 import http from 'http';
 import { promisify } from "util";
 import jwt from 'jsonwebtoken';
-import User from "./models/user.schema";
-import RoundController from "./controllers/round.controller";
-import { BuildingController } from './controllers/building.controller';
-import Building from "./models/building.schema";
+import User from "./models/UserModel";
+import RoundController from "./controllers/RoundController";
+import { BuildingController } from './controllers/BuildingController';
+import Building from "./models/BuildingModel";
+import Quest from "./models/Quest";
+import NotificationService from "./services/NotificationService";
+import { tilemap, tileTypes } from "./map/tilemap";
 
 const server: http.Server = http.createServer(app);
-
 const io = new Server(server);
 
 // SOCKET
@@ -24,7 +26,6 @@ io.on('connection', async (socket: Socket) => {
         io.close();
     }
 
-
     // @ts-ignore
     const decodedData: any = await promisify(jwt.verify)(token, process.env.JWT_SECRET!);
     const userId: string = decodedData.id;
@@ -32,16 +33,28 @@ io.on('connection', async (socket: Socket) => {
 
     const roundController: RoundController = new RoundController(user);
     const buildingController: BuildingController = new BuildingController(user);
+    const notificationService: NotificationService = new NotificationService(socket);
 
     // ON CONNECTION
     socket.emit('server:nextRound', { info: roundController.makeInfoObject() })
     socket.emit('server:buildingList', await Building.find({}));
     socket.emit('server:provideBuildings', user.building);
+    socket.emit('server:tileMap', { tilemap, tileTypes });
 
     // NEXT ROUND
     socket.on('client:nextRound', () => {
+        const questsBeforeNextRound: Array<Quest> = user.quests;
+
         roundController.nextRound();
         socket.emit('server:nextRound', roundController.makeInfoObject());
+
+        const questsAfterNextRound: Array<Quest> = user.quests;
+
+        for (const before of questsBeforeNextRound)
+            for (const after of questsAfterNextRound)
+                if (before.isComplete != after.isComplete)
+                    notificationService.sendNotification(after.name, after.description);
+
     });
 
     // BUILD
@@ -52,13 +65,25 @@ io.on('connection', async (socket: Socket) => {
         socket.emit('server:provideBuildings', user.building);
     });
 
+    // QUESTS
+    socket.on('client:getQuests', () => {
+        socket.emit('server:getQuests', {
+            completed: [...user.quests.filter((q: Quest) => q.isComplete)],
+            nonCompleted: [...user.quests.filter((q: Quest) => !q.isComplete)],
+        });
+    });
+
+    // HELP
+    socket.on('client:help', () => {})
+
+    // SETTINGS
+    socket.on('client:settings', () => {})
 })
 
 
 server.listen(process.env.PORT, () =>
     console.log(`server listen on ${process.env.PORT} | ${process.env.NODE_ENV} SERVER`)
 );
-
 
 process.on('uncaughtException', (err) => {
     writeLog(err);

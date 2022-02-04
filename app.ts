@@ -1,13 +1,13 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express from 'express';
 import { connect } from 'mongoose';
 import { config } from 'dotenv';
-import helmet from 'helmet';
-import errorController from './controllers/error.controller';
-import userRouter from './routes/user.router';
-import buildingRouter from './routes/building.router';
+import helmet from "helmet";
+import errorController from './controllers/errorController';
+import userRouter from './routes/userRouter';
+import buildingRouter from './routes/buildingRouter';
 import logger from './utils/logger';
 import rateLimit from 'express-rate-limit';
-import viewRouter from './routes/view.router';
+import viewRouter from './routes/viewRouter';
 import cookieParser from 'cookie-parser';
 import headersMiddleware from './middleware/headers';
 
@@ -19,8 +19,8 @@ app.set('view engine', 'pug');
 
 // MIDDLEWARE
 app.use(express.urlencoded({ extended: true }));
-app.use(helmet());
 app.use(express.json());
+app.use(helmet());
 app.use(cookieParser());
 app.use(express.static('public'));
 app.use(logger);
