@@ -1,0 +1,72 @@
+[
+  {
+    "name": "Builder I",
+    "expAward": 500,
+    "moneyAward": 1000,
+    "description": "Have two buildings.",
+    "requirement": "{ \"building\": { \"have\": 2 } }"
+  },
+  {
+    "name": "Builder II",
+    "expAward": 1000,
+    "moneyAward": 2500,
+    "description": "Have five buildings.",
+    "requirement": "{ \"building\": { \"have\": 5 } }"
+  },
+  {
+    "name": "Businessman I",
+    "expAward": 500,
+    "moneyAward": 1500,
+    "description": "Earn 60.000 money.",
+    "requirement": "{ \"money\": { \"have\": 60000 } }"
+  },
+  {
+    "name": "Businessman II",
+    "expAward": 2000,
+    "moneyAward": 3000,
+    "description": "Earn 100.000 money.",
+    "requirement": "{ \"money\": { \"have\": 100000 } }"
+  },
+  {
+    "name": "Eco energy",
+    "expAward": 1500,
+    "moneyAward": 4000,
+    "description": "Build two wind turbines.",
+    "requirement": "{ \"fan\": { \"have\": 2 } }"
+  },
+  {
+    "name": "Make friends",
+    "expAward": 5000,
+    "moneyAward": 4000,
+    "description": "Make one or more friends.",
+    "requirement": "{ \"friends\": { \"have\": 1 } }"
+  },
+  {
+    "name": "Civilization I",
+    "expAward": 500,
+    "moneyAward": 1000,
+    "description": "Have more than 50 people in your city.",
+    "requirement": "{ \"people\": { \"have\": 50 } }"
+  },
+  {
+    "name": "Civilization II",
+    "expAward": 900,
+    "moneyAward": 1200,
+    "description": "Have more than 150 people in your city.",
+    "requirement": "{ \"people\": { \"have\": 150 } }"
+  },
+  {
+    "name": "Expert",
+    "expAward": 5000,
+    "moneyAward": 10000,
+    "description": "Each 15 level.",
+    "requirement": "{ \"level\": { \"have\": 15 } }"
+  },
+  {
+    "name": "Advanced player",
+    "expAward": 5000,
+    "moneyAward": 15000,
+    "description": "Each 20 level.",
+    "requirement": "{ \"level\": { \"have\": 20 } }"
+  }
+]
