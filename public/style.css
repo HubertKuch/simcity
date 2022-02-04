@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@200&display=swap');
 
+* {
+  box-sizing: border-box;
+}
+
 html,
 body {
   width: 100%;
@@ -9,6 +13,26 @@ body {
   background: black;
   color: gray;
   font-family: 'Raleway', sans-serif;
+  overflow: hidden;
+}
+/* CTX */
+canvas {
+  height: calc(100% - 50px);
+  width: 100%;
+  display: block;
+  position: absolute;
+}
+
+#map-ctx {
+  z-index: 1;
+}
+
+#building-ctx {
+  z-index: 2;
+}
+
+#marked-ctx {
+  z-index: 3;
 }
 
 /* NAV */
@@ -44,42 +68,28 @@ nav {
   color: white;
 }
 
-/* MODAL */
-.modal-nav {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  z-index: 100;
-}
-
-.container {
-  width: 60%;
-  height: 70%;
-  position: absolute;
-  left: 50%;
-  top: 45%;
-  transform: translate(-50%, -50%);
-  background: rgb(89, 95, 91);
-}
-
-.overlay {
-  height: 100%;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.3);
+.info-icon{
+  color: white;
 }
 
 /* MAP */
+.my-city {
+  height: calc(100% - 50px);
+  width: 100%;
+}
+
 .map {
-  width: 80%;
-  height: calc(80% - 50px);
+  width: 100%;
+  height: 100%;
   float: right;
-  overflow: auto;
-  white-space: nowrap;
+  white-space: nowrap ;
 }
 
 .chunk {
   height: 48px;
+  width: 48px;
   display: inline-block;
+
   -webkit-user-drag: none;
   user-select: none;
 }
@@ -88,21 +98,29 @@ nav {
   height: 48px;
   width: 48px;
   display: inline-block;
+  margin: -4px -2.2px;
 }
 
 .marked-chunk {
-  border: 1px solid white;
-  outline: 1px solid black;
+  box-sizing: border-box;
+  border: 2px solid white;
+}
+
+.building {
+  width: 48px !important;
+  height: 48px !important;
+  z-index: 10000;
 }
 
 /* CITY INFO */
 .city-info {
-  background: black;
   height: calc(100% - 50px);
   width: 20%;
   float: left;
-  color: gray;
   font-size: 26px;
+  transition: left 1s;
+  color: black;
+  z-index: 100;
 }
 
 .city-info::first-letter {
@@ -122,12 +140,16 @@ nav {
 }
 
 .chunk-info {
-  background: black;
   width: 80%;
   height: 20%;
   position: absolute;
   right: 0;
   bottom: 0;
+
+  z-index: 100;
+
+  color: black;
+  transition: bottom 1s;
 }
 
 /* BUILDINGS LIST */
@@ -160,37 +182,91 @@ nav {
 .quests {
   height: calc(100% - 50px);
   width: 100%;
+  display: grid;
 }
 
 .quest-list {
-  width: 20%;
-  height: 100%;
+  width: calc(20% - 1px);
+  height: calc(100% - 2px);
   float: left;
-  color: white;
+  color: #168fff;
   font-size: 24px;
+  text-align: center;
+  border: 1px solid white;
+  float: left;
 }
 
-.quest-list ul {
-  list-style: none;
+.completed-quests{
+  color: #45d56d;
 }
 
-.quest-list li {
-  margin: 20px 0 0 ;
-
+.quest-name{
+  color: white;
 }
 
 .quest-description {
   width: 80%;
   height: 100%;
-  float: left;
-  color: white;
+  padding: 50px 50px;
+  float: right;
 }
 
-.quest-description .name {
+
+.quest-desc-name {
+  color: #a2d2ff;
   font-size: 24px;
-  color: antiquewhite;
+  font-weight: 600;
 }
 
-.marked-quest {
-  color: #33bd33;
+.quest-desc {
+  color: white;
+  font-size: 20px;
+  padding: 10px;
+}
+
+/* NOTIFICATIONS */
+.notification-stack{
+  position: absolute;
+  right: 2%;
+  bottom: 5%;
+
+  height: 60%;
+  width: 200px;
+}
+
+.notification{
+  width: 100%;
+  height: 100px;
+
+  background: gray;
+  color: white;
+  margin: 10px 0 0;
+}
+
+.notification-title{
+  color: antiquewhite;
+  font-weight: bold;
+}
+
+/* OPEN AND HIDE */
+.open-city-info {
+  height: 50px;
+  width: 20px;
+
+  position: absolute;
+  left: calc(100% + 5px);
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: #45d56d;
+}
+
+.open-chunk-info {
+  width: 50px;
+  height: 20px;
+  z-index: 100;
+  position: absolute;
+  left: calc(50% - 25px);
+  bottom: calc(100% - 5px);
+
+  background: #45d56d;
 }
