@@ -1,5 +1,5 @@
 import { Response, Request, NextFunction } from 'express';
-import UserModel from "../models/user.schema";
+import UserModel from "../models/UserModel";
 import catchAsync from "../utils/catchAsync";
 import AppError from "../utils/appError";
 import sendStatus from "../utils/sendStatus";
