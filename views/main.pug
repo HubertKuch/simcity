@@ -6,6 +6,7 @@ html(lang="en")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         title #{title}
         link(rel="stylesheet", href="/style.css")
+        link(rel="stylesheet" href="/friendsStyle.css")
         link(rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css", integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm", crossorigin="anonymous")
 
     body
@@ -22,7 +23,6 @@ html(lang="en")
 
         script(src="/utils.js")
         script(src="/drawTilemap.js")
-        script(src="/customElements.js")
         script(src="/socket.io/socket.io.js")
         script(src="https://unpkg.com/axios/dist/axios.min.js", defer)
         script(src="/setAsMarked.js")
@@ -32,4 +32,5 @@ html(lang="en")
         script(src="/nav.js")
         script(src="/movement.js")
         script(src="/hide.js")
+        script(src="/friends.js")
         script(src="/auth/logout.js")
