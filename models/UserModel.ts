@@ -43,30 +43,46 @@ const userSchema = new Schema<User>({
             message: 'Password and password confirm must be the same.',
         },
     },
+
     building: { type: [], default: [], },
     quests: { type: [], default: [] },
+    friends: { type: [Schema.Types.ObjectId], default: [], ref: 'User' },
+    invitations: { type: [Schema.Types.ObjectId], default: [], ref: 'User' },
+    notifications: { type: [], default: [] },
+
+    friendCode: { type: Number, default: 0 },
     level: { type: Number, default: 1, min: 1, max: 100, },
     role: { type: String, default: 'user', enum: ['admin', 'user', 'moderator'], },
+
     money: { type: Number, default: 50000, },
     exp: {type: Number, default: 0, },
+
     isActivated: { type: Boolean, default: true, },
     photo: String,
+    isActive: { type: Boolean, default: false },
+
     isEmailActivated: { type: Boolean, default: false, },
     twoAuth: { type: Boolean, default: false, },
-    isprotectedAccount: { type: Boolean, default: false, },
+    isProtectedAccount: { type: Boolean, default: false, },
+
     passwordResetToken: String,
     passwordResetExpiresIn: Date,
     passwordChangedAt: Date,
+
     activateEmailToken: String,
     activateEmailTokenExpiresIn: Date,
+
     twoAuthLoginToken: Number,
     twoAuthLoginExpiresIn: Date,
+
+    lastGenerateFriendCode: Date,
 });
 
 userSchema.pre('save', async function (next: Function) {
     this.passwordConfirm = undefined;
 
     if (this.isNew) {
+        this.friendCode = Math.floor(1000 + Math.random() * 9000);
         this.quests = await QuestModel.find({}).select('-_id -__V');
         this.password = await bcrypt.hash(this.password, 12);
     }
@@ -103,6 +119,18 @@ userSchema.methods.generateTwoAuthToken = function () {
 userSchema.methods.comparePassword = async function (passedPassword: string) {
     return await bcrypt.compare(passedPassword, this.password);
 };
+
+userSchema.methods.generateFriendCode = function (): number | bigint {
+    this.lastGenerateFriendCode = Date.now();
+
+    return Math.floor(1000 + Math.random() * 9000);
+}
+
+userSchema.methods.isCanGenerateNewFriendCode = function(): boolean {
+    if (!this.lastGenerateFriendCode) return true;
+
+    return Date.now() - +this.lastGenerateFriendCode > 60 * 60 * 24;
+}
 
 const UserSchema = model<User>('User', userSchema, 'Users');
 
