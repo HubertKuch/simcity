@@ -1,1 +1,31 @@
 .friends(style="display: none")
+    nav
+        .friends-nav-your-friends Friends
+        .friends-nav-find-friend Find
+        .friends-nav-invitations Invitations
+        .friends-nav-top-players Top players
+        .friends-nav-your-friend-code Your friend code
+    main
+        section.friends-section-your-friends
+        section.friends-section-find-friend
+            div.friends-search
+                input(type='search' placeholder='Type your friend name or code')
+                i.fas.fa-search
+            div.searched-friends
+        section.friends-section-invitations
+        section.friends-section-top-players
+            table.top-players-table
+
+        section.friends-section-your-friend-code
+            div.friend-code-container Your friend code is
+                div.friend-code
+                    span.code 1234
+                    span.copy COPY
+            div.friend-code-description
+                p
+                    | Friend code is four digits code and if you send a friend code to your friend,
+                    | she/he was will be able to add you to friends without nickname!
+                    | If this code was hard or not work you can generate new code.
+                    | Limit is one code per 24h.
+                    | In any questions use HELP section or write issue.
+            button.friend-code.generate-new-friend-code Generate new friend code
