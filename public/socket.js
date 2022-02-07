@@ -103,7 +103,6 @@ const waitForList = setInterval(()=> {
 
     if (list.length === 0) {
         list = document.querySelectorAll(query);
-        return;
     }
 
     clearInterval(waitForList)
@@ -139,4 +138,145 @@ socket.on('server:notification', ({ title, description }) => {
     setTimeout(() =>{
         $(`[data-notification-title="${title}"]`).remove();
     }, 5000);
+});
+
+// FRIENDS
+$('.friends-search input').addEventListener('input', (e) => {
+   socket.emit('client:searchFriends', { token: e.target.value });
+});
+
+socket.on('server:searchFriends', ({ users }) => {
+    const container = $('.searched-friends');
+
+    container.innerHTML = null;
+
+    if (users.length === 0) {
+        container.innerHTML += ``;
+    }
+
+    for (const user of users) {
+        container.innerHTML += `
+            <div class="friend searched-friend" data-user-id="${user._id}">
+                <span class="friend-name searched-friend-name">${user.username}</span>
+                <i class="fas fa-plus"></i>
+            </div>
+        `;
+    }
+
+    $$('.searched-friend i').forEach(sFriend => {
+        sFriend.addEventListener('click', (e) => {
+            let _id = e.target.getAttribute('data-user-id');
+
+            if (!_id) {
+                _id = e.target.parentElement.getAttribute('data-user-id');
+            }
+
+            socket.emit('client:addFriend', _id);
+        });
+    });
+});
+
+socket.on('server:getFriends', ({ friends }) => {
+    const container = $('.friends-section-your-friends');
+
+    container.innerHTML = null;
+
+    if (friends.length === 0) {
+        container.textContent = `You don't have friends yet.`;
+    }
+
+    for (const { username, isActive } of friends) {
+        const friend = document.createElement('div');
+        const friendName = document.createElement('span');
+        const isFriendActive = document.createElement('span');
+
+        friend.classList.add('friend');
+        friendName.textContent = username;
+        isFriendActive.classList.add('is-active', isActive ? 'active' : 'non-active');
+
+        friend.appendChild(friendName);
+        friend.appendChild(isFriendActive);
+
+        container.appendChild(friend);
+    }
+});
+
+socket.on('server:getInvitations', ({ invitations }) => {
+    const container = $('.friends-section-invitations');
+    container.innerHTML = null;
+
+    if (invitations.length === 0) {
+        const emptyMessage = document.createElement('span');
+        emptyMessage.textContent = 'You don\'t have any invitation.';
+        container.appendChild(emptyMessage);
+        return;
+    }
+
+    for (const { username, _id } of invitations) {
+        const friendInvitation = document.createElement('div');
+        const accept = document.createElement('i');
+        const reject = document.createElement('i');
+        const usernameElement = document.createElement('span');
+
+        friendInvitation.classList.add('friend', 'friend-invitation');
+        friendInvitation.setAttribute('data-user-id', _id);
+        accept.classList.add('fas', 'fa-check', 'accept');
+        reject.classList.add('fas', 'fa-times', 'reject');
+        usernameElement.textContent = username;
+
+        accept.addEventListener('click', () => {
+            socket.emit('client:acceptInvitation', _id);
+        });
+
+        reject.addEventListener('click', () => {
+            socket.emit('client:rejectInvitation', _id);
+        });
+
+        friendInvitation.appendChild(usernameElement);
+        friendInvitation.appendChild(accept);
+        friendInvitation.appendChild(reject);
+
+        container.appendChild(friendInvitation);
+    }
+});
+
+socket.on('server:getFriendCode', ({ code }) => {
+    $('.friend-code .code').textContent = code;
+});
+
+socket.on('server:getTopPlayers', ({ topPlayers }) => {
+    const table = $('.top-players-table');
+    const headerRow = document.createElement('tr');
+    table.innerHTML = null;
+
+    const rank = document.createElement('th');
+    rank.textContent = 'Rank';
+    headerRow.appendChild(rank);
+
+    for (const field in topPlayers[0]) {
+        const header = document.createElement('th');
+
+        header.textContent = field;
+        headerRow.appendChild(header);
+    }
+
+    table.appendChild(headerRow);
+
+    let placeNumber = 1;
+    for (const player of topPlayers) {
+        const row = document.createElement('tr');
+        const place = document.createElement('th');
+        place.textContent = placeNumber;
+        row.appendChild(place);
+
+        for (const field in player) {
+            const column = document.createElement('td');
+
+            column.textContent = Array.isArray(player[field]) ? player[field].length : player[field];
+            row.appendChild(column);
+        }
+
+        table.appendChild(row);
+        placeNumber += 1;
+    }
 });
