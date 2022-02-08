@@ -11,7 +11,7 @@ $('#marked-ctx').addEventListener('click', (e) => {
 
     const yRow = Math.floor((y / 32) + 1);
     const xField = Math.floor((x / 32) + 1);
-    console.log(tilesInAxis)
+
     const placeID = Math.floor(
         Math.abs(
             xField + (tilesInAxis.x * ( yRow - 1 ))

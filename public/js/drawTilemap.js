@@ -4,21 +4,6 @@ const ctx = mapCanvas.getContext('2d', { alpha: false });
 
 let tilemapData = {};
 
-let rightBoatPosition = 0;
-
-function moveBoat(timestamp) {
-    const boat = $('.static-boat');
-    boat.style.top = `400px`;
-    if (rightBoatPosition >= window.innerWidth) {
-        rightBoatPosition = 0;
-    }
-    rightBoatPosition += 1.5;
-    boat.style.right = `${rightBoatPosition}px`;
-    requestAnimationFrame(moveBoat);
-}
-
-requestAnimationFrame(moveBoat)
-
 window.addEventListener('resize', () => {
     resizeCanvas();
     drawTilemap(tilemapData.tilemap, tilemapData.tileTypes);
@@ -53,8 +38,6 @@ const drawTilemap = (tilemap, tileTypes) => {
                         const img = new Image();
                         img.src = `/sprites/${type[1]}.png`;
                         ctx.drawImage(img, x, y, 32, 32);
-                        // ctx.font = "8pt Arial";
-                        // ctx.fillText(`${i}`, x, y);
                     }
                 }
                 i++;
