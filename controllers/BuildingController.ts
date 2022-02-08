@@ -4,6 +4,7 @@ import catchAsync from "../utils/catchAsync";
 import Building from "../models/BuildingModel";
 import UserReq from "../utils/UserReq";
 import User from "../models/User";
+import { tilemap } from "../map/tilemap";
 
 /* [ ADMIN ] */
 const addBuilding = catchAsync(async (req: UserReq, res: Response, next: NextFunction) => {
@@ -73,8 +74,15 @@ export class BuildingController{
         if(isBusy) {
             return;
         }
+        // 5) Check there is no water on site
+        const x: number = Math.floor(placeId / tilemap[0].length);
+        const y: number = Math.floor(placeId % tilemap[0].length);
 
-        // 5) Save building to user document and decrease user money
+        if (tilemap[x][y+1] === 0) {
+            return;
+        }
+
+
         building.placeId = placeId;
         let preparedBuilding = JSON.parse(JSON.stringify(building));
         delete preparedBuilding._id;
