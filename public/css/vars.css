@@ -1,0 +1,10 @@
+:root {
+    --bg-color: #264370;
+    --bg-gradient: linear-gradient(to bottom right, #264370, #1E2176);
+    --bg-moz-gradient: -moz-linear-gradient(top left, #264370, #1E2176);
+    --bg-webkit-gradient: -webkit-linear-gradient(top left, #264370, #1E2176);
+
+    --color: gray;
+    --font: 'Supermercado One', cursive;
+    --nav-font-size: 2rem;
+}
