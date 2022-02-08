@@ -116,11 +116,11 @@ socket.on('server:getQuests', ({ completed, nonCompleted }) => {
 
 const waitForList = setInterval(()=> {
     const query = '.new-building'
-
     let list = document.querySelectorAll(query);
 
     if (list.length === 0) {
         list = document.querySelectorAll(query);
+        return;
     }
 
     clearInterval(waitForList)
@@ -140,6 +140,8 @@ const waitForList = setInterval(()=> {
     });
 
 }, 50);
+
+
 
 socket.on('server:notification', ({ title, description }) => {
     const notificationElement = (title, description) => `
