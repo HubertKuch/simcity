@@ -19,11 +19,6 @@ interface SignUpData {
     photo?: string,
 }
 
-const isValidSignUpData = ({ username, email, password, passwordConfirm }: SignUpData, next: NextFunction) => {
-    if (!username || !email || !password || !passwordConfirm) 
-        return next(new AppError('Please provide all of your data and try again.', 400));
-}
-    
 const makeVerificationEmailURL = (activationToken: string, userId: string, req: Request): string => {
     return `${req.protocol}://${req.hostname}${req.baseUrl}/verifyEmail/${userId}/${activationToken}`;
 }
@@ -61,7 +56,8 @@ const checkRestrictedRoles = (roles: Array<string>, userRole: string, next: Next
 const signup = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { username, passwordConfirm, password, photo, email }: SignUpData = req.body;
 
-    isValidSignUpData({ username, password, passwordConfirm, photo, email }, next);
+    if (!username || !email || !password || !passwordConfirm)
+        return next(new AppError('Please provide all of your data and try again.', 400));
 
     const user: User = new UserModel({ email, username, password, passwordConfirm, photo, });
 

@@ -4,7 +4,7 @@ html(lang="en")
         meta(http-equiv="X-UA-Compatible", content="IE=edge")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         title= title
-        link(rel="stylesheet", href="/loginStyle.css")
+        link(rel="stylesheet", href="/css/loginStyle.css")
     body 
         form
             span(style="color: red;", id="error-field")
@@ -33,9 +33,9 @@ html(lang="en")
                 button(type="submit") Login
             br
             label
-                button
-                    a(href="/signup") Sign up 
+                button Sign up
         script(src="https://unpkg.com/axios/dist/axios.min.js")
         script(src="/services/api.service.js")
         script(src="/services/user.service.js")
+        script(src="/auth/signup.js")
         script(src="/auth/auth.js", type="module") 
