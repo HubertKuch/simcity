@@ -58,42 +58,60 @@ socket.on('server:getQuests', ({ completed, nonCompleted }) => {
     const nonCompletedContainer = $('.non-completed-quests');
     const completedContainer = $('.completed-quests');
 
-    nonCompletedContainer.innerHTML = 'NON COMPLETED <br><br>';
-    completedContainer.innerHTML = 'COMPLETED <br><br>';
+    nonCompletedContainer.innerHTML = null;
+    completedContainer.innerHTML = null;
+
+    const nonCompletedTitle = document.createElement('span');
+
+    nonCompletedTitle.textContent = 'NON COMPLETED';
+    nonCompletedTitle.appendChild(document.createElement('br'));
+    nonCompletedTitle.appendChild(document.createElement('br'));
+
+    const completedTitle = document.createElement('span');
+    completedTitle.appendChild(document.createElement('br'));
+
+    completedTitle.textContent = 'COMPLETED';
+    completedTitle.appendChild(document.createElement('br'));
+    completedTitle.appendChild(document.createElement('br'));
+
+
+    nonCompletedContainer.appendChild(nonCompletedTitle);
+    completedContainer.appendChild(completedTitle);
 
     const questDescNameEl = $('.quest-desc-name');
     const questDescEl = $('.quest-desc');
     const award = $('.award');
 
-    if(nonCompleted[0]) {
-        questDescNameEl.textContent = nonCompleted[0].name;
-        questDescEl.textContent = nonCompleted[0].description;
-        award.textContent = `Exp: ${nonCompleted[0].expAward} Money: ${nonCompleted[0].moneyAward}`;
+    questDescNameEl.textContent = nonCompleted[0]?.name ?? 'You end all the quests. Congratulations.';
+    questDescEl.textContent = nonCompleted[0]?.description ?? 'If you want you can propose new quests and I will add it.';
+    award.textContent = `Exp: ${nonCompleted[0]?.expAward ?? ''} Money: ${nonCompleted[0]?.moneyAward ?? ''}`;
+
+    function createNewQuest({ _id, name, description, expAward, moneyAward }) {
+        const quest = document.createElement('div');
+        const questName = document.createElement('span');
+
+        quest.classList.add('quest');
+        quest.setAttribute('data-name', name);
+        quest.setAttribute('data-quest-id', _id);
+        questName.classList.add('quest-name');
+        questName.textContent = name;
+
+        questName.addEventListener('click', () => {
+            questDescNameEl.textContent = name;
+            questDescEl.textContent = description;
+            award.textContent = `Exp: ${expAward} Money: ${moneyAward}`;
+        });
+
+        quest.appendChild(questName);
+
+        return quest;
     }
 
-    const newQuestElement = ({ _id, name }) => `
-        <div class="quest" data-name="${name}" data-quest-id="${_id}">
-            <span class="quest-name">${name}</span>
-        </div>`;
-
     for (const quest of completed)
-        completedContainer.innerHTML += newQuestElement(quest);
+        completedContainer.appendChild(createNewQuest(quest));
 
     for (const quest of nonCompleted)
-        nonCompletedContainer.innerHTML += newQuestElement(quest);
-
-    nonCompletedContainer.innerHTML += '<hr>';
-
-    [...$$('.quest')].forEach(q => q.addEventListener('click', () => {
-        const questId = q.getAttribute('data-quest-id');
-        const questData = [...completed, ...nonCompleted].filter(q => q._id === questId)[0];
-
-        if (questData) {
-            questDescNameEl.textContent = questData.name;
-            questDescEl.textContent = questData.description;
-            award.textContent = `Exp: ${questData.expAward} Money: ${questData.moneyAward}`;
-        }
-    }));
+        nonCompletedContainer.appendChild(createNewQuest(quest));
 });
 
 const waitForList = setInterval(()=> {
@@ -122,8 +140,6 @@ const waitForList = setInterval(()=> {
     });
 
 }, 50);
-
-socket.on('server:destroy');
 
 socket.on('server:notification', ({ title, description }) => {
     const notificationElement = (title, description) => `
