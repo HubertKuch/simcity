@@ -27,11 +27,19 @@ $('.next-round-button').addEventListener('click', () => {
 
 const prepareBuildingElement = ({ id, img, name, price, lvl }) => {
     return `<div class="new-building"  data-buildingId="${id}" style="background: inherit;">
-            <img src="/sprites/${img}" style="height: 32px;width: 32px;" alt=""/><br/>
+            <img src="/sprites/${img}" style="" alt=""/><br/>
             <span class="building-name">${name}</span><br/>
             <span class="building-price">price: ${price}</span><br/>
             <span class="building-rpice">Required lvl: ${lvl}</span>
         </div>`
+
+    // const newBuilding = document.createElement('div');
+    // const image = new Image();
+    //
+    // newBuilding.setAttribute('data-buildingId', id);
+    // img.src = `/sprites/${img}`;
+    // img.style = "height: 32px;width: 32px;";
+
 }
 
 socket.on('server:buildingList', (data) => {
@@ -140,8 +148,6 @@ const waitForList = setInterval(()=> {
     });
 
 }, 50);
-
-
 
 socket.on('server:notification', ({ title, description }) => {
     const notificationElement = (title, description) => `
