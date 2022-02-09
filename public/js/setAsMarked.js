@@ -5,8 +5,8 @@ $('#marked-ctx').addEventListener('click', (e) => {
     const y = e.clientY - 50;
     const mapCTX = $('#map-ctx');
     const tilesInAxis = {
-        x: Math.floor(mapCTX.offsetWidth / 32) - 1,
-        y: Math.floor(mapCTX.offsetHeight / 32) - 2,
+        x: Math.floor(mapCTX.width / 32),
+        y: Math.floor(mapCTX.height / 32) - 1,
     };
 
     const yRow = Math.floor((y / 32) + 1);

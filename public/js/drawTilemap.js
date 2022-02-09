@@ -11,10 +11,9 @@ window.addEventListener('resize', () => {
 });
 
 const resizeCanvas = () => {
-    const map = $('.my-city');
     allCanvases.forEach(canvas => {
-        canvas.height = map.offsetHeight;
-        canvas.width = map.offsetWidth;
+        canvas.height = tilemapData.tilemap.length * 32;
+        canvas.width = tilemapData.tilemap[0].length * 32;
     })
 }
 
@@ -62,7 +61,7 @@ const drawBuildingTilemap = (data) => {
         const placeID = building.placeId;
         const width = 32;
         const height = 32;
-        const tilesInXAxis = Math.floor((buildingCanvas.offsetWidth / 32) - 1);
+        const tilesInXAxis = Math.floor((buildingCanvas.width / 32) - 1);
         const y = Math.floor((placeID / tilesInXAxis) + 1);
         const x = Math.floor(placeID % tilesInXAxis);
         const xpx = (x * 32) - 32;
